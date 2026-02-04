@@ -70,8 +70,33 @@ const deleteSession = async () => {
   return null; // no userSession
 };
 
+const getAccountSummary = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/accountSummary`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+    });
+
+    console.debug(`GET accountSummary response: ${response.status}`);
+
+    if (response.ok) {
+      const data = await response.json();
+      // console.debug(`GET accountSummary data: ${JSON.stringify(data)}`);
+      return data;
+    } else {
+      throw new Error(`Failed to fetch accounts: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error in getAccountSummary: ', error);
+    throw error;
+  }
+};
+
 export {
   getSession,
   deleteSession,
   postSession,
+  getAccountSummary,
 }

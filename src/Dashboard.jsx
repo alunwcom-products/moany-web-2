@@ -164,7 +164,10 @@ export default function Dashboard() {
         </List>
       </Drawer>
 
-      <Outlet />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Outlet />
+      </Box>
     </Box>
   )
 }

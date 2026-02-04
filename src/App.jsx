@@ -10,6 +10,7 @@ import SummaryView from './SummaryView';
 import TransactionsView from './TransactionsView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
+import { getAccountSummary } from './data/api';
 
 export default function App() {
 
@@ -24,10 +25,9 @@ export default function App() {
           element: <ProtectedRoute />,
           children: [
             { index: true, element: <SummaryView /> },
-            { path: "accounts", element: <AccountsView /> },
+            { path: "accounts", element: <AccountsView />, loader: getAccountSummary },
             { path: "transactions", element: <TransactionsView /> },
             { path: "upload", element: <StatementUploadView /> },
-            // { path: "accounts", element: <AccountsView />, loader: async () => await getAccountSummary() },
           ],
         },
       ],
