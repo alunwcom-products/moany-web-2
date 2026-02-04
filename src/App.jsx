@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Button, Chip, Stack, TextField } from "@mui/material";
 import './App.css'
+import { useAuth } from './AuthProvider';
 
 const BASE_URL = 'http://localhost:8888';
 
 export default function App() {
 
-  const [session, setSession] = useState();
+  const { userSession, isLoading, login, checkSession, logout } = useAuth();
 
   const BLANK_CREDENTIALS = {
     username: '', password: ''
@@ -27,7 +28,6 @@ export default function App() {
   const inputElement = useRef(null);
 
   const postSession = async (event) => {
-    // console.log('Login Submitted.');
     event.preventDefault(); // Prevents the page from refreshing
 
     // check both username and password are present
@@ -53,7 +53,7 @@ export default function App() {
       if (postResponse.ok) {
         const data = await postResponse.json();
         console.debug(`POST session user: ${JSON.stringify(data)}`);
-        setSession({ user: data.user });
+        login({ user: data.user }); // via AuthProvider
       } else {
         console.info('Login failed!');
       }
@@ -66,54 +66,12 @@ export default function App() {
     if (inputElement.current) {
       inputElement.current.focus();
     }
-
-    // setCredentials((prevCredentials) => {
-    //   prevCredentials.password = '';
-    //   return prevCredentials;
-    // });
   };
-
-  const getSession = async () => {
-    const getResponse = await fetch(`${BASE_URL}/session`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-    });
-
-    console.debug(`GET session response: ${getResponse.status}`);
-
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      console.debug(`GET session user: ${JSON.stringify(data)}`);
-      setSession({ user: data.user });
-    } else {
-      setSession(null);
-    }
-  };
-
-  const clearSession = async () => {
-    const deleteResponse = await fetch(`${BASE_URL}/session`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-    });
-
-    console.debug(`DELETE session response: ${deleteResponse.status}`);
-    setSession(null);
-  };
-
-  useEffect(() => {
-    console.info('useEffect()');
-    getSession();
-  }, []);
 
   return (
     <>
       <Stack>
-        <p>Current user = {session?.user}</p>
+        <p>Current user = {userSession?.user}</p>
         <Box sx={{ tp: 2, pb: 2 }}>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -179,7 +137,7 @@ export default function App() {
                 borderWidth: '1px',
               }
             }}
-            onClick={getSession}>Check Session</Button>
+            onClick={checkSession}>Check Session</Button>
         </p>
         <p>
           <Button
@@ -192,7 +150,7 @@ export default function App() {
                 borderWidth: '1px',
               }
             }}
-            onClick={clearSession}>Log Out</Button>
+            onClick={logout}>Log Out</Button>
         </p>
       </Stack>
     </>
