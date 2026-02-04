@@ -1,136 +1,132 @@
-import { useRef, useState } from 'react'
-import { Box, Button, Stack, TextField } from "@mui/material";
-import { useAuth } from './hooks/AuthContext';
-import { postSession } from './data/api';
+import { useEffect, useState } from 'react';
+import { Alert, AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Snackbar, Toolbar, Typography } from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { Logout } from "@mui/icons-material";
+import { Link, Outlet } from 'react-router';
 
 export default function Dashboard() {
 
-  const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
+  const handleCloseError = () => {
+    console.debug('Error closed.');
+    // setError(false);
+  }
 
-  const BLANK_CREDENTIALS = {
-    username: '', password: ''
+  const handleLogout = () => {
+    // handleLoginChange({});
+    handleDrawerClose();
+    navigate("/");
+  }
+
+  // menu/drawer state
+  const [open, setOpen] = useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
   };
 
-  // 1. Setup state to store form values
-  const [credentials, setCredentials] = useState(BLANK_CREDENTIALS);
-
-  // 2. Update state when user types
-  const handleTextInputChange = (e) => {
-    const { name, value } = e.target;
-    setCredentials((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleDrawerClose = () => {
+    setOpen(false);
   };
 
-  const inputElement = useRef(null);
+  const drawerWidth = 240;
 
-  const handleLogin = async (event) => {
-    event.preventDefault(); // Prevents the page from refreshing
-
-    // check both username and password are present
-    if (credentials.username.length === 0 || credentials.password.length === 0) {
-      // setError('Submit a username and password');
-      console.info('Submit a username and password');
-      return;
-    }
-
-    const result = await postSession(credentials.username, credentials.password);
-    if (result) { // only update user session if authentication successful
-      updateUserSession(result);
-    }
-
-    setCredentials(BLANK_CREDENTIALS);
-    if (inputElement.current) {
-      inputElement.current.focus();
-    }
-  };
+  const mainMenu = [
+    { key: 'summary', label: 'Summary', link: '/summary' },
+    { key: 'accounts', label: 'Accounts', link: '/accounts' },
+    { key: 'transactions', label: 'Transactions', link: '/transactions' },
+    { key: 'upload', label: 'Statement Upload', link: '/upload' },
+  ];
 
   return (
-    <>
-      <Stack>
-        {isLoading ? <p></p> : <p>Current user = {userSession?.user}</p>}
-        <Box sx={{ tp: 2, pb: 2 }}>
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={2}
-            alignItems="center"
-            component="form"
-            noValidate
-            autoComplete="off"
-            onSubmit={handleLogin} // Triggers on Button click OR Enter key
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                mr: 2,
+              },
+              open && { display: 'none' },
+            ]}
           >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Moany
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-            <TextField
-              name="username" // Matches state key
-              inputRef={inputElement}
-              value={credentials.username}
-              onChange={handleTextInputChange}
-              label="Username"
-              variant="outlined"
-              size="small" // Ensures a compact height
-              sx={{ width: '200px' }}
-              slotProps={{
-                htmlInput: {
-                  autoCapitalize: 'none',
-                  autoCorrect: 'off',
-                  spellCheck: 'false',
-                },
-              }}
-            />
-
-            <TextField
-              name="password" // Matches state key
-              label="Password"
-              type="password"
-              variant="outlined"
-              size="small" // Matches the username field
-              value={credentials.password}
-              onChange={handleTextInputChange}
-              sx={{ width: '200px' }}
-            />
-
-            <Button
-              variant="outlined" // Changes the style to a simple outline
-              sx={{
-                height: '40px',   // Matches the 'small' TextField height exactly
-                px: 3,            // Adds horizontal padding inside the button
-                borderWidth: '1px',
-                '&:hover': {
-                  borderWidth: '1px', // Prevents the border from thickening on hover
-                }
-              }}
-              type="submit" // Crucial for Enter key support
-            >Login</Button>
-          </Stack>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <Box>
+          <IconButton onClick={handleDrawerClose}>
+            <ChevronLeftIcon />
+          </IconButton>
         </Box>
-        <p>
-          <Button
-            variant="outlined"
-            sx={{
-              height: '40px',
-              px: 3,
-              borderWidth: '1px',
-              '&:hover': {
-                borderWidth: '1px',
-              }
-            }}
-            onClick={checkSession}>Check Session</Button>
-        </p>
-        <p>
-          <Button
-            variant="outlined"
-            sx={{
-              height: '40px',
-              px: 3,
-              borderWidth: '1px',
-              '&:hover': {
-                borderWidth: '1px',
-              }
-            }}
-            onClick={logout}>Log Out</Button>
-        </p>
-      </Stack>
-    </>
+        <Divider />
+        <List>
+          {mainMenu.map((item) => {
+            return (
+              <ListItem key={item.key} disablePadding>
+                <ListItemButton component={Link} to={item.link} onClick={handleDrawerClose}
+                  sx={{
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    // Explicitly handle the hover state
+                    '&:hover': {
+                      color: 'inherit',
+                      textDecoration: 'none',
+                    }
+                  }}>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              </ListItem>
+            )
+          })}
+        </List>
+        <Divider />
+        <List>
+          {['Logout'].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton onClick={handleLogout}>
+                <ListItemText primary={text} />
+                <Logout />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+
+      <Outlet />
+
+      {/* {error &&
+        <Snackbar open={true} onClose={handleCloseError}>
+          <Alert
+            severity="error"
+            variant="standard"
+            sx={{ width: '100%' }}
+          >
+            {error}
+          </Alert>
+        </Snackbar>
+      } */}
+    </Box>
   )
 }
