@@ -1,12 +1,11 @@
 import { useRef, useState } from 'react'
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
-
-const BASE_URL = 'http://localhost:8888';
+import { postSession } from './data/api';
 
 export default function Dashboard() {
 
-  const { userSession, isLoading, login, checkSession, logout } = useAuth();
+  const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
 
   const BLANK_CREDENTIALS = {
     username: '', password: ''
@@ -26,7 +25,7 @@ export default function Dashboard() {
 
   const inputElement = useRef(null);
 
-  const postSession = async (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault(); // Prevents the page from refreshing
 
     // check both username and password are present
@@ -36,29 +35,9 @@ export default function Dashboard() {
       return;
     }
 
-    try {
-      const body = JSON.stringify({ user: credentials.username, password: credentials.password });
-      const postResponse = await fetch(`${BASE_URL}/session`, {
-        method: "POST",
-        body: body,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-      });
-
-      console.debug(`POST session response: ${postResponse.status}`);
-
-      if (postResponse.ok) {
-        const data = await postResponse.json();
-        console.debug(`POST session user: ${JSON.stringify(data)}`);
-        login({ user: data.user }); // via AuthProvider
-      } else {
-        console.info('Login failed!');
-      }
-    } catch (error) {
-      // setError('Authentication error');
-      console.error('Caught error in postSession: ', error);
+    const result = await postSession(credentials.username, credentials.password);
+    if (result) { // only update user session if authentication successful
+      updateUserSession(result);
     }
 
     setCredentials(BLANK_CREDENTIALS);
@@ -79,7 +58,7 @@ export default function Dashboard() {
             component="form"
             noValidate
             autoComplete="off"
-            onSubmit={postSession} // Triggers on Button click OR Enter key
+            onSubmit={handleLogin} // Triggers on Button click OR Enter key
           >
 
             <TextField
