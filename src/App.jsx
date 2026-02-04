@@ -112,7 +112,7 @@ export default function App() {
 
   return (
     <>
-      <div>
+      <Stack>
         <p>Current user = {session?.user}</p>
         <Box sx={{ tp: 2, pb: 2 }}>
           <Stack
@@ -168,10 +168,33 @@ export default function App() {
             >Login</Button>
           </Stack>
         </Box>
-        <p><button onClick={getSession}>CHECK SESSION</button></p>
-        <p><button onClick={clearSession}>LOG OUT</button></p>
-
-      </div>
+        <p>
+          <Button
+            variant="outlined"
+            sx={{
+              height: '40px',
+              px: 3,
+              borderWidth: '1px',
+              '&:hover': {
+                borderWidth: '1px',
+              }
+            }}
+            onClick={getSession}>Check Session</Button>
+        </p>
+        <p>
+          <Button
+            variant="outlined"
+            sx={{
+              height: '40px',
+              px: 3,
+              borderWidth: '1px',
+              '&:hover': {
+                borderWidth: '1px',
+              }
+            }}
+            onClick={clearSession}>Log Out</Button>
+        </p>
+      </Stack>
     </>
   )
 }
