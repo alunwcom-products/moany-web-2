@@ -1,11 +1,18 @@
 import { useRef, useState } from 'react'
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Alert, Box, Button, Snackbar, Stack, TextField } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
 import { postSession } from './data/api';
 
 export default function LoginView() {
 
+  // AuthProvider context 
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
+
+  // LoginView error messaging (SnackBar)
+  const [error, setError] = useState(null);
+  const handleCloseError = (event, reason) => {
+    setError(false);
+  };
 
   const BLANK_CREDENTIALS = {
     username: '', password: ''
@@ -38,6 +45,8 @@ export default function LoginView() {
     const result = await postSession(credentials.username, credentials.password);
     if (result) { // only update user session if authentication successful
       updateUserSession(result);
+    } else {
+      setError('Authentication failed!');
     }
 
     setCredentials(BLANK_CREDENTIALS);
@@ -117,8 +126,18 @@ export default function LoginView() {
             }}
             onClick={checkSession}>Check Session</Button>
         </p>
-
       </Stack>
+
+      <Snackbar open={error} onClose={handleCloseError}>
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          variant="standard"
+          sx={{ width: '100%' }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </>
   )
 }

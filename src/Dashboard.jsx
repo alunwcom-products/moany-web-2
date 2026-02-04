@@ -119,18 +119,6 @@ export default function Dashboard() {
       </Drawer>
 
       <Outlet />
-
-      {/* {error &&
-        <Snackbar open={true} onClose={handleCloseError}>
-          <Alert
-            severity="error"
-            variant="standard"
-            sx={{ width: '100%' }}
-          >
-            {error}
-          </Alert>
-        </Snackbar>
-      } */}
     </Box>
   )
 }
