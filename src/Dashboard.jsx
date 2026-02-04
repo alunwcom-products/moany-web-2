@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Alert, AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Snackbar, Toolbar, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { Logout } from "@mui/icons-material";
 import { Link, Outlet } from 'react-router';
+import { useAuth } from './hooks/AuthContext';
 
 export default function Dashboard() {
 
-  const handleCloseError = () => {
-    console.debug('Error closed.');
-    // setError(false);
-  }
+  const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
 
-  const handleLogout = () => {
-    // handleLoginChange({});
-    handleDrawerClose();
-    navigate("/");
-  }
+  // const handleCloseError = () => {
+  //   console.debug('Error closed.');
+  //   // setError(false);
+  // }
+
+  // const handleLogout = () => {
+
+  //   // handleLoginChange({});
+  //   // handleDrawerClose();
+  //   // navigate("/");
+  // }
 
   // menu/drawer state
   const [open, setOpen] = useState(false);
@@ -75,9 +79,9 @@ export default function Dashboard() {
         anchor="left"
         open={open}
       >
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
+            <MenuOpenIcon />
           </IconButton>
         </Box>
         <Divider />
@@ -105,7 +109,7 @@ export default function Dashboard() {
         <List>
           {['Logout'].map((text, index) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton onClick={handleLogout}>
+              <ListItemButton onClick={logout}>
                 <ListItemText primary={text} />
                 <Logout />
               </ListItemButton>

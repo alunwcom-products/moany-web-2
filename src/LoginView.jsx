@@ -117,19 +117,7 @@ export default function LoginView() {
             }}
             onClick={checkSession}>Check Session</Button>
         </p>
-        <p>
-          <Button
-            variant="outlined"
-            sx={{
-              height: '40px',
-              px: 3,
-              borderWidth: '1px',
-              '&:hover': {
-                borderWidth: '1px',
-              }
-            }}
-            onClick={logout}>Log Out</Button>
-        </p>
+
       </Stack>
     </>
   )
