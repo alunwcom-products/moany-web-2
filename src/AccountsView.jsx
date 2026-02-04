@@ -2,7 +2,7 @@
 export default function AccountsView() {
   return (
     <div>
-      <p>TODO Accounts Page</p>
+      <p>TODO Accounts View</p>
     </div>
   )
 };

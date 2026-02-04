@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
 import { AuthContext } from './hooks/AuthContext';
 import { deleteSession, getSession } from './data/api';
+import { useError } from './hooks/ErrorContext';
 
 export const AuthProvider = ({ children }) => {
+
+  const { setMessage } = useError();
+
   const [userSession, setUserSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const updateUserSession = (userSession) => setUserSession(userSession);
 
   const checkSession = async () => {
-    setUserSession(await getSession());
+    const newSession = await getSession();
+    setUserSession(newSession);
+    if (newSession) {
+      setMessage('Session refreshed', 'info');
+    } else {
+      //setMessage('Session expired', 'error');
+    }
   };
 
   const logout = async () => {
@@ -17,8 +27,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    checkSession();
-    setIsLoading(false);
+    const initSession = async () => {
+      await checkSession();
+      setIsLoading(false);
+    };
+    initSession();
   }, []);
 
   return (

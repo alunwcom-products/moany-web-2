@@ -30,7 +30,6 @@ export default function Dashboard() {
   };
   const handleProfileRefresh = () => {
     checkSession();
-    setMessage('Session refreshed', 'info');
     setAnchorEl(null);
   };
   const handleProfileLogout = () => {
@@ -45,7 +44,7 @@ export default function Dashboard() {
   const drawerWidth = 240;
 
   const mainMenu = [
-    { key: 'summary', label: 'Summary', link: '/summary' },
+    { key: 'summary', label: 'Summary', link: '/' },
     { key: 'accounts', label: 'Accounts', link: '/accounts' },
     { key: 'transactions', label: 'Transactions', link: '/transactions' },
     { key: 'upload', label: 'Statement Upload', link: '/upload' },

@@ -6,6 +6,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import LoginView from './LoginView';
 import AccountsView from './AccountsView';
 import { ErrorProvider } from './ErrorProvider';
+import SummaryView from './SummaryView';
+import TransactionsView from './TransactionsView';
+import StatementUploadView from './StatementUploadView';
+import ProtectedRoute from './ProtectedRoute';
 
 export default function App() {
 
@@ -15,18 +19,17 @@ export default function App() {
       element: <Dashboard />,
       //ErrorBoundary: RootErrorBoundary,
       children: [
-        { index: true, element: <LoginView /> },
-        { path: "accounts", element: <AccountsView /> },
-        // {
-        //   element: <ProtectedRoute/>,
-        //   children: [
-        //     { index: true, element: <HomeView/> },
-        // { path: "summary", element: <SummaryView /> },
-        // { path: "accounts", element: <AccountsView />, loader: async () => await getAccountSummary() },
-        //     { path: "transactions", element: <TransactionsView /> },
-        //     { path: "upload", element: <StatementUploadView /> },
-        //   ],
-        // },
+        { path: "login", element: <LoginView /> },
+        {
+          element: <ProtectedRoute />,
+          children: [
+            { index: true, element: <SummaryView /> },
+            { path: "accounts", element: <AccountsView /> },
+            { path: "transactions", element: <TransactionsView /> },
+            { path: "upload", element: <StatementUploadView /> },
+            // { path: "accounts", element: <AccountsView />, loader: async () => await getAccountSummary() },
+          ],
+        },
       ],
     }
   ]);

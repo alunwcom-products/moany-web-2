@@ -63,9 +63,9 @@ const deleteSession = async () => {
       credentials: 'include',
     });
     console.debug(`DELETE session response: ${deleteResponse.status}`);
-    setUserSession(null);
   } catch (error) {
     // catch errors but do nothing, just clear userSession
+    console.error('Caught error in deleteSession: ', error);
   }
   return null; // no userSession
 };

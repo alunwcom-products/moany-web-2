@@ -1,15 +1,31 @@
-import { useRef, useState } from 'react'
-import { Alert, Box, Button, Snackbar, Stack, TextField } from "@mui/material";
+import { useRef, useState, useEffect } from 'react'
+import { Box, Button, Stack, TextField } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
 import { postSession } from './data/api';
 import { useError } from './hooks/ErrorContext';
+import { useLocation, useNavigate } from 'react-router';
 
 export default function LoginView() {
 
   // AuthProvider context 
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
 
+  // ErrorProvider context
   const { setMessage } = useError();
+
+  // navigate to referrer
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Retrieve the path from state, or default to the home page
+  const from = location.state?.from || "/";
+
+  // if user session already exists redirect
+  useEffect(() => {
+    if (userSession) {
+      navigate(from, { replace: true });
+    }
+  }, [userSession, navigate, from]);
 
   const BLANK_CREDENTIALS = {
     username: '', password: ''
@@ -42,6 +58,8 @@ export default function LoginView() {
     const result = await postSession(credentials.username, credentials.password);
     if (result) { // only update user session if authentication successful
       updateUserSession(result);
+      console.debug('Redirecting: ', from);
+      navigate(from, { replace: true });
     } else {
       setMessage('Authentication failed!', 'error');
     }
