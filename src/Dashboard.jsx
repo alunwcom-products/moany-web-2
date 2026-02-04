@@ -1,36 +1,40 @@
 import { useEffect, useState } from 'react';
-import { Alert, AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Snackbar, Toolbar, Typography } from "@mui/material";
+import { Alert, AppBar, Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Menu, MenuItem, Snackbar, Toolbar, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import { Logout } from "@mui/icons-material";
+import { AccountCircle, Label, Logout } from "@mui/icons-material";
 import { Link, Outlet } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
 
 export default function Dashboard() {
 
+  // AuthProvider context 
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
-
-  // const handleCloseError = () => {
-  //   console.debug('Error closed.');
-  //   // setError(false);
-  // }
-
-  // const handleLogout = () => {
-
-  //   // handleLoginChange({});
-  //   // handleDrawerClose();
-  //   // navigate("/");
-  // }
 
   // menu/drawer state
   const [open, setOpen] = useState(false);
-
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
+  const handleDrawerLogout = () => {
+    logout();
+    setOpen(false);
+  };
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  // profile menu state
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleProfileMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleProfileRefresh = () => {
+    checkSession();
+    setAnchorEl(null);
+  };
+  const handleProfileClose = () => {
+    setAnchorEl(null);
   };
 
   const drawerWidth = 240;
@@ -44,7 +48,7 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" open={open}>
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             color="inherit"
@@ -60,9 +64,53 @@ export default function Dashboard() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+
+          <Typography variant="h6" component="div" align="left" sx={{ flexGrow: 1 }}>
             Moany
           </Typography>
+
+          {userSession?.user && (
+            <div>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleProfileMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleProfileClose}
+              >
+                <MenuItem sx={{
+                  pointerEvents: 'none', // Disables click and hover states
+                  fontWeight: 'bold',    // Optional: make it look like a header
+                  fontSize: '0.75rem',
+                  color: 'text.secondary'
+                }}>Logged in as {userSession.user}</MenuItem>
+                <MenuItem sx={{
+                  fontSize: '0.75rem',
+                  color: 'text.secondary'
+                }}
+                  onClick={handleProfileRefresh}>Refresh session</MenuItem>
+              </Menu>
+            </div>
+          )}
+
         </Toolbar>
       </AppBar>
 
@@ -75,9 +123,8 @@ export default function Dashboard() {
             boxSizing: 'border-box',
           },
         }}
-        variant="persistent"
-        anchor="left"
         open={open}
+        onClose={handleDrawerClose}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <IconButton onClick={handleDrawerClose}>
@@ -109,7 +156,7 @@ export default function Dashboard() {
         <List>
           {['Logout'].map((text, index) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton onClick={logout}>
+              <ListItemButton onClick={handleDrawerLogout}>
                 <ListItemText primary={text} />
                 <Logout />
               </ListItemButton>
