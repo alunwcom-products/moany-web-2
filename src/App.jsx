@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Box, Button, Chip, Stack, TextField } from "@mui/material";
 import './App.css'
-import { useAuth } from './AuthProvider';
+import { useAuth } from './hooks/AuthContext';
 
 const BASE_URL = 'http://localhost:8888';
 

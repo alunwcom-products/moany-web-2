@@ -1,8 +1,7 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
+import { AuthContext } from './hooks/AuthContext';
 
 const BASE_URL = 'http://localhost:8888';
-
-const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [userSession, setUserSession] = useState(null);
@@ -56,6 +55,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-// 2. Custom hook for easy access
-export const useAuth = () => useContext(AuthContext);
