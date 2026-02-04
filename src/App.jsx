@@ -5,23 +5,24 @@ import Dashboard from './Dashboard';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import LoginView from './LoginView';
 import AccountsView from './AccountsView';
+import { ErrorProvider } from './ErrorProvider';
 
 export default function App() {
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Dashboard/>,
+      element: <Dashboard />,
       //ErrorBoundary: RootErrorBoundary,
       children: [
-        { index: true, element: <LoginView/> },
-        { path: "accounts", element: <AccountsView />},
+        { index: true, element: <LoginView /> },
+        { path: "accounts", element: <AccountsView /> },
         // {
         //   element: <ProtectedRoute/>,
         //   children: [
         //     { index: true, element: <HomeView/> },
         // { path: "summary", element: <SummaryView /> },
-            // { path: "accounts", element: <AccountsView />, loader: async () => await getAccountSummary() },
+        // { path: "accounts", element: <AccountsView />, loader: async () => await getAccountSummary() },
         //     { path: "transactions", element: <TransactionsView /> },
         //     { path: "upload", element: <StatementUploadView /> },
         //   ],
@@ -31,9 +32,11 @@ export default function App() {
   ]);
 
   return (
-    <AuthProvider>
-      <CssBaseline/>
-      <RouterProvider router={router}></RouterProvider>
-    </AuthProvider>
+    <ErrorProvider>
+      <AuthProvider>
+        <CssBaseline />
+        <RouterProvider router={router}></RouterProvider>
+      </AuthProvider>
+    </ErrorProvider>
   );
 }

@@ -5,11 +5,14 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { AccountCircle, Label, Logout } from "@mui/icons-material";
 import { Link, Outlet } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
+import { useError } from './hooks/ErrorContext';
 
 export default function Dashboard() {
 
   // AuthProvider context 
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
+
+  const { setMessage } = useError();
 
   // menu/drawer state
   const [open, setOpen] = useState(false);
@@ -31,6 +34,7 @@ export default function Dashboard() {
   };
   const handleProfileRefresh = () => {
     checkSession();
+    setMessage('Session refreshed', 'info');
     setAnchorEl(null);
   };
   const handleProfileClose = () => {
