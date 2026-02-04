@@ -86,7 +86,7 @@ const getAccountSummary = async () => {
       // console.debug(`GET accountSummary data: ${JSON.stringify(data)}`);
       return data;
     } else {
-      throw new Error(`Failed to fetch accounts: ${response.status}`);
+      throw new Response(null, { status: response.status });
     }
   } catch (error) {
     console.error('Error in getAccountSummary: ', error);
