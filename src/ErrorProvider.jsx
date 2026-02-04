@@ -46,7 +46,7 @@ export const ErrorProvider = ({ children }) => {
         <Snackbar
           key={messageInfo?.key}
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={5000}
           onClose={handleClose}
           slotProps={{ transition: { onExited: handleExited } }}
         >

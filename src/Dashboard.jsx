@@ -19,10 +19,6 @@ export default function Dashboard() {
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-  const handleDrawerLogout = () => {
-    logout();
-    setOpen(false);
-  };
   const handleDrawerClose = () => {
     setOpen(false);
   };
@@ -35,6 +31,11 @@ export default function Dashboard() {
   const handleProfileRefresh = () => {
     checkSession();
     setMessage('Session refreshed', 'info');
+    setAnchorEl(null);
+  };
+  const handleProfileLogout = () => {
+    logout();
+    setMessage('Logged out', 'info');
     setAnchorEl(null);
   };
   const handleProfileClose = () => {
@@ -111,6 +112,12 @@ export default function Dashboard() {
                   color: 'text.secondary'
                 }}
                   onClick={handleProfileRefresh}>Refresh session</MenuItem>
+                <Divider />
+                <MenuItem sx={{
+                  fontSize: '0.75rem',
+                  color: 'text.secondary'
+                }}
+                  onClick={handleProfileLogout}>Log out <Logout fontSize='small' sx={{ ml: 1 }} /></MenuItem>
               </Menu>
             </div>
           )}
@@ -155,17 +162,6 @@ export default function Dashboard() {
               </ListItem>
             )
           })}
-        </List>
-        <Divider />
-        <List>
-          {['Logout'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton onClick={handleDrawerLogout}>
-                <ListItemText primary={text} />
-                <Logout />
-              </ListItemButton>
-            </ListItem>
-          ))}
         </List>
       </Drawer>
 
