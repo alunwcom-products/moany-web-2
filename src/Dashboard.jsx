@@ -3,7 +3,7 @@ import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButto
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { Logout } from "@mui/icons-material";
-import { Link, Outlet } from 'react-router';
+import { Link, Outlet, redirect } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
 import ProfileIcon from './ProfileIcon';
 import { useMessaging } from './hooks/MessagingContext';
@@ -35,8 +35,8 @@ export default function Dashboard() {
   };
   const handleProfileLogout = () => {
     logout();
-    setMessage('Logged out', 'info');
-    setAnchorEl(null);
+    return redirect('/login');
+    // setAnchorEl(null);
   };
   const handleProfileClose = () => {
     setAnchorEl(null);

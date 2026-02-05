@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
-import { postSession } from './data/api';
+import { postSession, UnauthorizedError } from './data/api';
 import { useLocation, useNavigate } from 'react-router';
 import { useMessaging } from './hooks/MessagingContext';
 
@@ -54,12 +54,20 @@ export default function LoginView() {
       return;
     }
 
-    const result = await postSession(credentials.username, credentials.password);
-    if (result) { // only update user session if authentication successful
-      updateUserSession(result);
-      navigate(from, { replace: true });
-    } else {
-      setMessage('Authentication failed!', 'error');
+    try {
+      const result = await postSession(credentials.username, credentials.password);
+      if (result) { // only update user session if authentication successful
+        updateUserSession(result);
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        // user needs to login
+        setMessage('Authentication failed', 'error');
+      } else {
+        // other error
+        setMessage('Server error', 'error');
+      }
     }
 
     setCredentials(BLANK_CREDENTIALS);

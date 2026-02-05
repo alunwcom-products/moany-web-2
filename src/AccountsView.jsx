@@ -13,11 +13,8 @@ export default function AccountsView() {
   // ErrorProvider context
   const { setMessage } = useMessaging();
 
-  // REVIEW ---------------------------
-
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
-  // const [accountUpdated, setAccountUpdated] = useState(false);
-
+  
   // update state in a function to that child toolbar component can update the state
   const handleLoading = (isFetching) => {
     setIsLoadingDataGrid(isFetching)
@@ -98,14 +95,11 @@ export default function AccountsView() {
     if (!accounts) {
       setMessage('No accounts found', 'warning');
     }
-    // console.debug(accounts.results);
   }, [accounts, setMessage]);
 
   const rowUpdate = async (updatedRow, originalRow) => {
-    console.log(`UPDATE: ${JSON.stringify(updatedRow, null, 2)}`);
     handleLoading(true);
     setAccount(updatedRow);
-
     handleLoading(false);
     return updatedRow;
   };

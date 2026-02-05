@@ -9,7 +9,7 @@ import SummaryView from './SummaryView';
 import TransactionsView from './TransactionsView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
-import { getAccountSummary } from './data/api';
+import { getAccountSummary, UnauthorizedError } from './data/api';
 import { MessagingProvider } from './MessagingProvider';
 
 // Loader wrapper to redirect to login on 401 (unauthenticated)

@@ -51,8 +51,6 @@ export default function AccountsToolbar({ handleFetch }) {
       newRow
     ]);
 
-    // TODO persist new account before closing
-    console.debug(`INSERT: ${JSON.stringify(newRow, null, 2)}`);
     handleFetch(true);
     setAccount(newRow);
     handleFetch(false);
