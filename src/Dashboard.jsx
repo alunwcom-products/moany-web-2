@@ -5,15 +5,15 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { Logout } from "@mui/icons-material";
 import { Link, Outlet } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
-import { useError } from './hooks/ErrorContext';
 import ProfileIcon from './ProfileIcon';
+import { useMessaging } from './hooks/MessagingContext';
 
 export default function Dashboard() {
 
   // AuthProvider context 
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
 
-  const { setMessage } = useError();
+  const { setMessage } = useMessaging();
 
   // menu/drawer state
   const [open, setOpen] = useState(false);

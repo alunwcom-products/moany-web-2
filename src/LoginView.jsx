@@ -2,8 +2,8 @@ import { useRef, useState, useEffect } from 'react'
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
 import { postSession } from './data/api';
-import { useError } from './hooks/ErrorContext';
 import { useLocation, useNavigate } from 'react-router';
+import { useMessaging } from './hooks/MessagingContext';
 
 export default function LoginView() {
 
@@ -11,7 +11,7 @@ export default function LoginView() {
   const { userSession, isLoading, updateUserSession, checkSession, logout } = useAuth();
 
   // ErrorProvider context
-  const { setMessage } = useError();
+  const { setMessage } = useMessaging();
 
   // navigate to referrer
   const navigate = useNavigate();

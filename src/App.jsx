@@ -5,12 +5,12 @@ import Dashboard from './Dashboard';
 import { createBrowserRouter, RouterProvider, redirect, useRouteError, isRouteErrorResponse } from 'react-router';
 import LoginView from './LoginView';
 import AccountsView from './AccountsView';
-import { ErrorProvider } from './ErrorProvider';
 import SummaryView from './SummaryView';
 import TransactionsView from './TransactionsView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
 import { getAccountSummary } from './data/api';
+import { MessagingProvider } from './MessagingProvider';
 
 // Loader wrapper to redirect to login on 401 (unauthenticated)
 const accountSummaryLoader = async (args) => {
@@ -73,11 +73,11 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <ErrorProvider>
+    <MessagingProvider>
       <AuthProvider>
         <CssBaseline />
         <RouterProvider router={router}></RouterProvider>
       </AuthProvider>
-    </ErrorProvider>
+    </MessagingProvider>
   );
 }

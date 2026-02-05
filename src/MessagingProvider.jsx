@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ErrorContext } from './hooks/ErrorContext';
-import { Alert, Button, Snackbar } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+import { MessagingContext } from './hooks/MessagingContext';
 
-export const ErrorProvider = ({ children }) => {
+export const MessagingProvider = ({ children }) => {
 
   const [snackPack, setSnackPack] = useState([]);
   const [open, setOpen] = useState(false);
@@ -39,9 +39,9 @@ export const ErrorProvider = ({ children }) => {
 
   return (
     <>
-      <ErrorContext.Provider value={{ setMessage }}>
+      <MessagingContext.Provider value={{ setMessage }}>
         {children}
-      </ErrorContext.Provider>
+      </MessagingContext.Provider>
 
       <div>
         <Snackbar

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './hooks/AuthContext';
 import { deleteSession, getSession } from './data/api';
-import { useError } from './hooks/ErrorContext';
+import { useMessaging } from './hooks/MessagingContext';
 
 export const AuthProvider = ({ children }) => {
 
-  const { setMessage } = useError();
+  const { setMessage } = useMessaging();
 
   const [userSession, setUserSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

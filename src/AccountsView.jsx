@@ -1,17 +1,17 @@
 import { useLoaderData } from 'react-router';
-import { useError } from './hooks/ErrorContext';
 import { useEffect, useState } from 'react';
 import {
   DataGrid,
 } from '@mui/x-data-grid';
 import AccountsToolbar from './AccountsToolbar';
 import { setAccount } from './data/api';
+import { useMessaging } from './hooks/MessagingContext';
 
 export default function AccountsView() {
   // account data
   const accounts = useLoaderData();
   // ErrorProvider context
-  const { setMessage } = useError();
+  const { setMessage } = useMessaging();
 
   // REVIEW ---------------------------
 
