@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUserSession = (userSession) => setUserSession(userSession);
 
-  const checkSession = useCallback(async () => {
+  const checkSession = async () => {
     const newSession = await getSession();
     setUserSession(newSession);
     if (newSession) {
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       //setMessage('Session expired', 'error');
     }
-  }, [setMessage]);
+  };
 
   const logout = async () => {
     setUserSession(await deleteSession());
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     };
     initSession();
-  }, [checkSession]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ userSession, isLoading, updateUserSession, checkSession, logout }}>
