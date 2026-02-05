@@ -1,7 +1,6 @@
-# exp-vite-api-test
+# moany-web-2
 
-- check through recent AI generated code
+A rewrite of the initial moany-web, which was a PoC React front-end to moany (node-moany API).
 
-- implement set account
 
 
