@@ -18,19 +18,14 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-
 import { v4 as uuidv4 } from 'uuid';
-// import { getAccountSummary, setAccount, UnauthorizedError } from './api/accounts';
+import { setAccount } from './data/api';
 
 export default function AccountsToolbar({ handleFetch }) {
 
   const apiRef = useGridApiContext();
   const [newPanelOpen, setNewPanelOpen] = useState(false);
   const newPanelTriggerRef = useRef(null);
-
-  const setAccount = (row) => {
-    console.log(`TODO setAccount ${row}`);
-  };
 
   const handleClose = () => {
     setNewPanelOpen(false);

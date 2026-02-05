@@ -1,6 +1,7 @@
 
-
 const BASE_URL = import.meta.env.VITE_API_ENDPOINT;
+
+class UnauthorizedError extends Error { };
 
 const postSession = async (user, password) => {
   try {
@@ -94,9 +95,32 @@ const getAccountSummary = async () => {
   }
 };
 
+// NOTE: trying alt error handling...
+const setAccount = async (account) => {
+  const body = JSON.stringify(account);
+  const response = await fetch(`${BASE_URL}/account`, {
+    method: 'PUT',
+    body,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+  });
+
+  console.debug(`PUT setAccount response: ${response.status}`);
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new UnauthorizedError(`${response.status} ${response.statusText}`);
+    }
+    throw new Error(`${response.status} ${response.statusText}`)
+  }
+};
+
 export {
   getSession,
   deleteSession,
   postSession,
   getAccountSummary,
+  setAccount,
 }

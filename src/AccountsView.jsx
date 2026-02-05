@@ -1,47 +1,26 @@
 import { useLoaderData } from 'react-router';
 import { useError } from './hooks/ErrorContext';
-// import { useEffect } from 'react';
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DataGrid,
-  Toolbar,
-  ToolbarButton,
-  ColumnsPanelTrigger,
-  FilterPanelTrigger,
-  useGridApiContext,
 } from '@mui/x-data-grid';
-import Tooltip from '@mui/material/Tooltip';
-import Badge from '@mui/material/Badge';
-import Popper from '@mui/material/Popper';
-import Paper from '@mui/material/Paper';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import ViewColumnIcon from '@mui/icons-material/ViewColumn';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import Typography from '@mui/material/Typography';
-import AddIcon from '@mui/icons-material/Add';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-
-import { v4 as uuidv4 } from 'uuid';
 import AccountsToolbar from './AccountsToolbar';
-// import { getAccountSummary, setAccount, UnauthorizedError } from './api/accounts';
+import { setAccount } from './data/api';
 
 export default function AccountsView() {
-
+  // account data
   const accounts = useLoaderData();
+  // ErrorProvider context
   const { setMessage } = useError();
 
-  // ---------------------------
-  const [isFetching, setIsFetching] = useState(false);
-  // const [accounts, setAccounts] = useState([]);
-  // const [error, setError] = useState();
-  const [accountUpdated, setAccountUpdated] = useState(false);
+  // REVIEW ---------------------------
+
+  const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
+  // const [accountUpdated, setAccountUpdated] = useState(false);
 
   // update state in a function to that child toolbar component can update the state
-  const handleFetch = (isFetching) => {
-    setIsFetching(isFetching)
+  const handleLoading = (isFetching) => {
+    setIsLoadingDataGrid(isFetching)
   }
 
   const currencyFormatter = new Intl.NumberFormat('en-GB', {
@@ -115,28 +94,25 @@ export default function AccountsView() {
     },
   };
 
-
-
-  // ---------------------------
-
   useEffect(() => {
     if (!accounts) {
       setMessage('No accounts found', 'warning');
     }
-    console.debug(accounts.results);
+    // console.debug(accounts.results);
   }, [accounts, setMessage]);
 
-const rowUpdate = async (updatedRow, originalRow) => {
+  const rowUpdate = async (updatedRow, originalRow) => {
     console.log(`UPDATE: ${JSON.stringify(updatedRow, null, 2)}`);
-    handleFetch(true);
-    setAccount(updatedRow, login.token)
-    handleFetch(false);
+    handleLoading(true);
+    setAccount(updatedRow);
+
+    handleLoading(false);
     return updatedRow;
-  }
+  };
 
   const errorHandler = (error) => {
     console.error('Error handler called! ' + error);
-  }
+  };
 
   // store filter
   const FILTER_STORAGE_KEY = 'account-filter';
@@ -160,11 +136,11 @@ const rowUpdate = async (updatedRow, originalRow) => {
         initialState={initialState}
         filterModel={filterModel}
         onFilterModelChange={onFilterChange}
-        loading={isFetching}
+        loading={isLoadingDataGrid}
         slots={{ toolbar: AccountsToolbar }}
         slotProps={{
           toolbar: {
-            handleFetch
+            handleFetch: handleLoading
           }
         }}
         showToolbar
