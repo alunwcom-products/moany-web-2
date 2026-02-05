@@ -28,12 +28,12 @@ const accountSummaryLoader = async (args) => {
 export default function App() {
 
   const router = createBrowserRouter([
+    { path: "login", element: <LoginView /> },
     {
       path: "/",
       element: <Dashboard />,
       //ErrorBoundary: RootErrorBoundary,
       children: [
-        { path: "login", element: <LoginView /> },
         {
           element: <ProtectedRoute />,
           children: [
