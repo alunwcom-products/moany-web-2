@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Alert, AppBar, Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Menu, MenuItem, Snackbar, Toolbar, Typography } from "@mui/material";
+import { useState } from 'react';
+import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Menu, MenuItem, Snackbar, Toolbar, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import { AccountCircle, Label, Logout } from "@mui/icons-material";
+import { Logout } from "@mui/icons-material";
 import { Link, Outlet } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
 import { useError } from './hooks/ErrorContext';
+import ProfileIcon from './ProfileIcon';
 
 export default function Dashboard() {
 
@@ -83,7 +84,7 @@ export default function Dashboard() {
                 onClick={handleProfileMenu}
                 color="inherit"
               >
-                <AccountCircle />
+                <ProfileIcon />
               </IconButton>
               <Menu
                 id="menu-appbar"
