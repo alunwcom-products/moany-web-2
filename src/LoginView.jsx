@@ -50,15 +50,13 @@ export default function LoginView() {
 
     // check both username and password are present
     if (credentials.username.length === 0 || credentials.password.length === 0) {
-      // setError('Submit a username and password');
-      console.info('Submit a username and password');
+      setMessage('Enter a username and password', 'warning');
       return;
     }
 
     const result = await postSession(credentials.username, credentials.password);
     if (result) { // only update user session if authentication successful
       updateUserSession(result);
-      console.debug('Redirecting: ', from);
       navigate(from, { replace: true });
     } else {
       setMessage('Authentication failed!', 'error');

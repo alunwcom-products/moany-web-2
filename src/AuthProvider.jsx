@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './hooks/AuthContext';
 import { deleteSession, getSession } from './data/api';
 import { useError } from './hooks/ErrorContext';
@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUserSession = (userSession) => setUserSession(userSession);
 
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     const newSession = await getSession();
     setUserSession(newSession);
     if (newSession) {
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       //setMessage('Session expired', 'error');
     }
-  };
+  }, [setMessage]);
 
   const logout = async () => {
     setUserSession(await deleteSession());
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     };
     initSession();
-  }, []);
+  }, [checkSession]);
 
   return (
     <AuthContext.Provider value={{ userSession, isLoading, updateUserSession, checkSession, logout }}>

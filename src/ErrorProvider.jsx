@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorContext } from './hooks/ErrorContext';
 import { Alert, Button, Snackbar } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
 
 export const ErrorProvider = ({ children }) => {
 
@@ -22,7 +23,7 @@ export const ErrorProvider = ({ children }) => {
 
   // severity can be error, warning, info, or success.
   const setMessage = (message, severity) => {
-    setSnackPack((prev) => [...prev, { message, severity: (severity ? severity : 'info'), key: new Date().getTime() }]);
+    setSnackPack((prev) => [...prev, { message, severity: (severity ? severity : 'info'), key: uuidv4() }]);
   };
 
   const handleClose = (event, reason) => {

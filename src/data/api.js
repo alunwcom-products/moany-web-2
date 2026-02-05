@@ -1,6 +1,6 @@
 
 
-const BASE_URL = 'http://localhost:8888';
+const BASE_URL = import.meta.env.VITE_API_ENDPOINT;
 
 const postSession = async (user, password) => {
   try {
@@ -21,7 +21,7 @@ const postSession = async (user, password) => {
       console.debug(`POST session user: ${JSON.stringify(data)}`);
       return { user: data.user }; // userSession object
     } else {
-      console.info('Login failed!');
+      console.debug('Login failed!');
     }
   } catch (error) {
     console.error('Caught error in postSession: ', error);
