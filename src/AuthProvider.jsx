@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthContext } from './hooks/AuthContext';
 import { deleteSession, getSession, UnauthorizedError } from './data/api';
 import { useMessaging } from './hooks/MessagingContext';
-import { redirect } from 'react-router';
+import { redirect, useLocation } from 'react-router';
 
 export const AuthProvider = ({ children }) => {
 
+  // context/provider
   const { setMessage } = useMessaging();
 
+  // AuthContext properties (userSession, isLoading, updateUserSession, checkSession, logout)
   const [userSession, setUserSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,6 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkSession = async () => {
     try {
+      setIsLoading(true);
       const newSession = await getSession();
       setUserSession(newSession);
       setMessage('Session refreshed', 'info');
@@ -23,11 +26,12 @@ export const AuthProvider = ({ children }) => {
       if (!(error instanceof UnauthorizedError)) {
         setMessage('Server error', 'error');
       }
-      return redirect('/login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = async () => {
+  const logout = async (location = '/') => {
     try {
       await deleteSession();
     } catch (error) {
@@ -38,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    console.debug('AuthProvider: useEffect()');
     const initSession = async () => {
       await checkSession();
       setIsLoading(false);

@@ -2,28 +2,14 @@ import './App.css'
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './AuthProvider';
 import Dashboard from './Dashboard';
-import { createBrowserRouter, RouterProvider, redirect, useRouteError, isRouteErrorResponse } from 'react-router';
+import { createBrowserRouter, RouterProvider, useRouteError, isRouteErrorResponse } from 'react-router';
 import LoginView from './LoginView';
 import AccountsView from './AccountsView';
 import SummaryView from './SummaryView';
 import TransactionsView from './TransactionsView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
-import { getAccountSummary, UnauthorizedError } from './data/api';
 import { MessagingProvider } from './MessagingProvider';
-
-// Loader wrapper to redirect to login on 401 (unauthenticated)
-const accountSummaryLoader = async (args) => {
-  try {
-    return await getAccountSummary();
-  } catch (err) {
-    // If the API returned a Response with status (thrown above), handle 401
-    if (err instanceof Response && err.status === 401) {
-      return redirect('/login');
-    }
-    throw err;
-  }
-};
 
 // TODO check what this needs to do - and UI
 const rootErrorBoundary = () => {
@@ -62,7 +48,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { index: true, element: <SummaryView /> },
-          { path: "accounts", element: <AccountsView />, loader: accountSummaryLoader },
+          { path: "accounts", element: <AccountsView /> },
           { path: "transactions", element: <TransactionsView /> },
           { path: "upload", element: <StatementUploadView /> },
         ],

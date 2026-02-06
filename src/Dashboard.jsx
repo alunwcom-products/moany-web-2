@@ -35,7 +35,6 @@ export default function Dashboard() {
   };
   const handleProfileLogout = () => {
     logout();
-    return redirect('/login');
     // setAnchorEl(null);
   };
   const handleProfileClose = () => {

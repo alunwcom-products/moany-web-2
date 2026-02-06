@@ -19,9 +19,15 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { v4 as uuidv4 } from 'uuid';
-import { setAccount } from './data/api';
+import { setAccount, UnauthorizedError } from './data/api';
+import { useAuth } from './hooks/AuthContext';
+import { useMessaging } from './hooks/MessagingContext';
 
-export default function AccountsToolbar({ handleFetch }) {
+export default function AccountsToolbar({ handleLoading }) {
+
+  // context providers
+  const { logout } = useAuth();
+  const { setMessage } = useMessaging();
 
   const apiRef = useGridApiContext();
   const [newPanelOpen, setNewPanelOpen] = useState(false);
@@ -31,8 +37,9 @@ export default function AccountsToolbar({ handleFetch }) {
     setNewPanelOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
     const formData = new FormData(event.target);
     const newRow = {
       uuid: uuidv4(),
@@ -51,10 +58,21 @@ export default function AccountsToolbar({ handleFetch }) {
       newRow
     ]);
 
-    handleFetch(true);
-    setAccount(newRow);
-    handleFetch(false);
-    handleClose();
+    try {
+      handleLoading(true);
+      await setAccount(newRow);
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        // user needs to login
+        logout();
+      } else {
+        // other error
+        throw error;
+      }
+    } finally {
+      handleLoading(false);
+      handleClose();
+    }
   };
 
   const handleKeyDown = (event) => {

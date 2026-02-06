@@ -1,25 +1,27 @@
-import { useLoaderData } from 'react-router';
+import { redirect, useLoaderData } from 'react-router';
 import { useEffect, useState } from 'react';
 import {
   DataGrid,
 } from '@mui/x-data-grid';
 import AccountsToolbar from './AccountsToolbar';
-import { setAccount } from './data/api';
+import { getAccountSummary, setAccount, UnauthorizedError } from './data/api';
 import { useMessaging } from './hooks/MessagingContext';
+import { useAuth } from './hooks/AuthContext';
 
 export default function AccountsView() {
-  // account data
-  const accounts = useLoaderData();
-  // ErrorProvider context
-  const { setMessage } = useMessaging();
 
+  // context providers
+  const { logout } = useAuth();
+  const { setMessage } = useMessaging();
+  // accounts data state
+  const [accounts, setAccounts] = useState([]);
+  // datagrid loading state
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
-  
   // update state in a function to that child toolbar component can update the state
   const handleLoading = (isFetching) => {
     setIsLoadingDataGrid(isFetching)
   }
-
+  // datagrid currency formatting
   const currencyFormatter = new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
@@ -30,10 +32,7 @@ export default function AccountsView() {
     { field: 'name', headerName: 'Account Name', width: 250, editable: true },
     { field: 'sortcode', headerName: 'Sort Code', width: 120, editable: true },
     { field: 'account_num', headerName: 'Account Number', width: 150, editable: true },
-    {
-      field: 'type', headerName: 'Type', width: 100, editable: true,
-      type: 'singleSelect', valueOptions: ['DEBIT', 'CREDIT']
-    },
+    { field: 'type', headerName: 'Type', width: 100, editable: true, type: 'singleSelect', valueOptions: ['DEBIT', 'CREDIT'] },
     {
       field: 'active',
       headerName: 'Active',
@@ -91,21 +90,49 @@ export default function AccountsView() {
     },
   };
 
-  useEffect(() => {
-    if (!accounts) {
-      setMessage('No accounts found', 'warning');
+  const fetchAccounts = async () => {
+    try {
+      handleLoading(true);
+      const data = await getAccountSummary();
+      setAccounts(data.results);
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        // user needs to login
+        logout();
+      } else {
+        // other error
+        throw error;
+      }
+    } finally {
+      handleLoading(false);
     }
-  }, [accounts, setMessage]);
+  };
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
 
   const rowUpdate = async (updatedRow, originalRow) => {
-    handleLoading(true);
-    setAccount(updatedRow);
-    handleLoading(false);
-    return updatedRow;
+    try {
+      handleLoading(true);
+      await setAccount(updatedRow);
+      return updatedRow;
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        // user needs to login
+        logout();
+      } else {
+        // other error
+        throw error;
+      }
+    } finally {
+      handleLoading(false);
+    }
   };
 
   const errorHandler = (error) => {
-    console.error('Error handler called! ' + error);
+    console.error('Row update error: ', error);
+    setMessage('Row update error', 'error');
   };
 
   // store filter
@@ -126,7 +153,7 @@ export default function AccountsView() {
     <div style={{ height: 400, width: '100%' }}>
       <DataGrid
         columns={columns}
-        rows={accounts.results}
+        rows={accounts}
         initialState={initialState}
         filterModel={filterModel}
         onFilterModelChange={onFilterChange}
@@ -134,7 +161,7 @@ export default function AccountsView() {
         slots={{ toolbar: AccountsToolbar }}
         slotProps={{
           toolbar: {
-            handleFetch: handleLoading
+            handleLoading
           }
         }}
         showToolbar
