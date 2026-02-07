@@ -1,13 +1,8 @@
 import { styled, keyframes } from '@mui/material/styles';
 import { Box } from '@mui/material';
-import { AccountCircle } from '@mui/icons-material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-export default function ProfileIcon({ warn }) {
-
-  const colorShift = keyframes`
-    0% { color: #ffffff; }
-    100% { color: #ff9933; }
-  `;
+export default function DashboardRefreshIcon({ warn }) {
 
   const pulse = keyframes`
     0% { transform: scale(1); }
@@ -15,19 +10,19 @@ export default function ProfileIcon({ warn }) {
     100% { transform: scale(1); }
   `;
 
-  const AnimationWrapper = styled(Box, {
+  const AnimationWrapper = styled(Box, {  
     shouldForwardProp: (prop) => prop !== 'warn',
   })(({ warn }) => ({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    animation: warn ? `${pulse} 2s ease-in-out infinite, ${colorShift} 1s infinite alternate` : 'none',
-    color: warn ? '#ff9933' : 'inherit',
+    animation: warn ? `${pulse} 1s ease-in-out infinite` : 'none',
+    color: warn ? '#fbdb68' : 'inherit',
   }));
 
   return (
     <AnimationWrapper warn={warn}>
-      <AccountCircle/>
+      <RefreshIcon/>
     </AnimationWrapper>
   );
 };

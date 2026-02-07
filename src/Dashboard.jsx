@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Menu, MenuItem, Snackbar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import { Logout } from "@mui/icons-material";
-import { Link, Outlet, redirect } from 'react-router';
+import { AccountCircle, Logout } from "@mui/icons-material";
+import { Link, Outlet } from 'react-router';
 import { useAuth } from './hooks/AuthContext';
-import ProfileIcon from './ProfileIcon';
 import { useMessaging } from './hooks/MessagingContext';
+import DashboardRefreshIcon from './DashboardRefreshIcon';
 
 export default function Dashboard() {
 
@@ -75,16 +76,25 @@ export default function Dashboard() {
 
           {userSession?.user && (
             <div>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleProfileMenu}
-                color="inherit"
-              >
-                <ProfileIcon />
-              </IconButton>
+              {/* TODO refresh view and session button */}
+              <Tooltip title="Refresh View">
+                <IconButton color="inherit" onClick={handleProfileRefresh}>
+                  <DashboardRefreshIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Profile">
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleProfileMenu}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+              </Tooltip>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
@@ -106,11 +116,6 @@ export default function Dashboard() {
                   fontSize: '0.75rem',
                   color: 'text.secondary'
                 }}>Logged in as {userSession.user}</MenuItem>
-                <MenuItem sx={{
-                  fontSize: '0.75rem',
-                  color: 'text.secondary'
-                }}
-                  onClick={handleProfileRefresh}>Refresh session</MenuItem>
                 <Divider />
                 <MenuItem sx={{
                   fontSize: '0.75rem',
