@@ -158,6 +158,7 @@ export default function AccountsView() {
         filterModel={filterModel}
         onFilterModelChange={onFilterChange}
         loading={isLoadingDataGrid}
+        pageSizeOptions={[10, 25, 100]}
         slots={{ toolbar: AccountsToolbar }}
         slotProps={{
           toolbar: {
