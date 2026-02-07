@@ -162,7 +162,8 @@ export default function AccountsView() {
         slots={{ toolbar: AccountsToolbar }}
         slotProps={{
           toolbar: {
-            handleLoading
+            handleLoading,
+            accounts
           }
         }}
         showToolbar
