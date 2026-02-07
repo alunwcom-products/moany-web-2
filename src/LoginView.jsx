@@ -101,22 +101,6 @@ export default function LoginView() {
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          {/* Logo/Title */}
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}
-          >
-            Moany
-          </Typography>
-
-          <Typography
-            component="h2"
-            variant="h6"
-            sx={{ textAlign: 'center', mb: 2, color: 'text.secondary' }}
-          >
-            Sign in to your account
-          </Typography>
 
           {/* Login Form */}
           <Stack
@@ -156,28 +140,6 @@ export default function LoginView() {
               autoComplete="current-password"
             />
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="rememberMe"
-                    color="primary"
-                    checked={credentials.rememberMe}
-                    onChange={handleTextInputChange}
-                    disabled={isLoading}
-                  />
-                }
-                label="Remember me"
-              />
-              <Link
-                href="#"
-                variant="body2"
-                sx={{ cursor: 'pointer', textDecoration: 'none' }}
-              >
-                Forgot password?
-              </Link>
-            </Box>
-
             <Button
               fullWidth
               variant="contained"
@@ -189,21 +151,6 @@ export default function LoginView() {
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </Stack>
-
-          {/* Sign up link */}
-          <Typography
-            variant="body2"
-            sx={{ textAlign: 'center', mt: 3 }}
-          >
-            Don't have an account?{' '}
-            <Link
-              href="#"
-              variant="body2"
-              sx={{ cursor: 'pointer', textDecoration: 'none' }}
-            >
-              Sign up
-            </Link>
-          </Typography>
         </Paper>
       </Box>
     </Container>
