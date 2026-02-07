@@ -150,7 +150,7 @@ export default function AccountsView() {
   };
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <DataGrid
         columns={columns}
         rows={accounts}

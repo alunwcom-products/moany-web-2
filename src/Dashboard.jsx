@@ -169,9 +169,17 @@ export default function Dashboard() {
         </List>
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{
+        flexGrow: 1,
+        p: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto'
+      }}>
         <Toolbar />
-        <Outlet />
+        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   )
