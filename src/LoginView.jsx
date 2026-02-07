@@ -62,7 +62,7 @@ export default function LoginView() {
 
     // check both username and password are present
     if (credentials.username.length === 0 || credentials.password.length === 0) {
-      setMessage('Enter a username and password', 'warning');
+      setMessage('Enter a username and password', 'info');
       return;
     }
 

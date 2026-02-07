@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       const newSession = await getSession();
       setUserSession(newSession);
-      setMessage('Session refreshed', 'info');
+      setMessage('Session refreshed', 'success');
     } catch (error) {
       setUserSession(null);
       if (!(error instanceof UnauthorizedError)) {
