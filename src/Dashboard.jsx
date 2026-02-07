@@ -146,7 +146,7 @@ export default function Dashboard() {
             <MenuOpenIcon />
           </IconButton>
         </Box>
-        <Divider />
+
         <List>
           {mainMenu.map((item) => {
             return (
