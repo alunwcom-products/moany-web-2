@@ -33,12 +33,18 @@ export default function StatementUploadView() {
     }
 
     try {
-      alert(`Selected ${file.name} (${Math.round(file.size / 1024)} KB) for ${type}`);
-
       const response = await postStatement(file, type);
       setFile(null);
       setType("");
       e.target.reset();
+
+      console.debug('RESPONSE: ', response);
+
+      if (response?.success) {
+        setMessage(response.message, 'success');
+      } else {
+        setMessage(response.message, 'error');
+      }
 
     } catch (error) {
       if (error instanceof UnauthorizedError) {
