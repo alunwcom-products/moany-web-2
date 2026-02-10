@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, FormHelperText, Divider } from '@mui/material';
 import { useMessaging } from "./hooks/MessagingContext";
+import { postStatement, UnauthorizedError } from "./data/api";
 
 export default function StatementUploadView() {
 
@@ -10,10 +11,8 @@ export default function StatementUploadView() {
 
   const [file, setFile] = useState(null);
   const [type, setType] = useState("");
-  const [error, setError] = useState("");
 
   function handleFileChange(e) {
-    setError("");
     const f = e.target.files?.[0] ?? null;
     if (f && f.type !== "application/pdf") {
       //setError("Please select a PDF file.");
@@ -24,25 +23,33 @@ export default function StatementUploadView() {
     setFile(f);
   }
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     if (!file) {
-      // return setError("No file selected.");
       return setMessage('No file selected', 'error');
     }
     if (!type) {
-      // return setError("Please choose a statement type.");
       return setMessage('Please select the statement type', 'error');
     }
 
-    // Placeholder: actual upload/processing will be implemented later
-    console.log("Uploading file:", file.name, "as type:", type);
-    alert(`Selected ${file.name} (${Math.round(file.size / 1024)} KB) for ${type}`);
-    setFile(null);
-    setType("");
-    e.target.reset();
-  }
+    try {
+      alert(`Selected ${file.name} (${Math.round(file.size / 1024)} KB) for ${type}`);
+
+      const response = await postStatement(file, type);
+      setFile(null);
+      setType("");
+      e.target.reset();
+
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        // user needs to login
+        logout();
+      } else {
+        // other error
+        throw error;
+      }
+    }
+  };
 
   return (
     <Box className="card">
@@ -71,10 +78,7 @@ export default function StatementUploadView() {
             <MenuItem value="Chase Debit">Chase Debit</MenuItem>
             <MenuItem value="NatWest Debit">NatWest Debit</MenuItem>
           </Select>
-
         </FormControl>
-
-        {error && <Typography color="error">{error}</Typography>}
 
         <Box>
           <Button type="submit" variant="contained">Upload</Button>
