@@ -80,9 +80,9 @@ export default function StatementUploadView() {
             label="Statement Type"
             onChange={(e) => setType(e.target.value)}
           >
-            <MenuItem value="Mastercard">Mastercard</MenuItem>
-            <MenuItem value="Chase Debit">Chase Debit</MenuItem>
-            <MenuItem value="NatWest Debit">NatWest Debit</MenuItem>
+            <MenuItem value="mcard">Mastercard</MenuItem>
+            <MenuItem value="chase">Chase Debit</MenuItem>
+            <MenuItem value="nwdeb">NatWest Debit</MenuItem>
           </Select>
         </FormControl>
 
