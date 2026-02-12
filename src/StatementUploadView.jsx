@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, FormHelperText, Divider } from '@mui/material';
+import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
 import { useMessaging } from "./hooks/MessagingContext";
 import { postStatement, UnauthorizedError } from "./data/api";
 
@@ -37,8 +37,6 @@ export default function StatementUploadView() {
       setFile(null);
       setType("");
       e.target.reset();
-
-      console.debug('RESPONSE: ', response);
 
       if (response?.success) {
         setMessage(response.message, 'success');
