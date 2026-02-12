@@ -56,8 +56,8 @@ export default function StatementUploadView() {
   };
 
   return (
-    <Box className="card">
-      <Typography variant="h5" gutterBottom>Statement Upload</Typography>
+    <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom >Statement Upload</Typography>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 560 }}>
 

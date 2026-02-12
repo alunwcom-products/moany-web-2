@@ -7,6 +7,7 @@ import AccountsToolbar from './AccountsToolbar';
 import { getAccountSummary, setAccount, UnauthorizedError } from './data/api';
 import { useMessaging } from './hooks/MessagingContext';
 import { useAuth } from './hooks/AuthContext';
+import { Box, Typography } from '@mui/material';
 
 export default function AccountsView() {
 
@@ -150,7 +151,8 @@ export default function AccountsView() {
   };
 
   return (
-    <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom >Accounts</Typography>
       <DataGrid
         columns={columns}
         rows={accounts}
@@ -181,6 +183,6 @@ export default function AccountsView() {
           }
         }}
       />
-    </div>
+    </Box>
   );
 }

@@ -1,8 +1,9 @@
+import { Box, Typography } from "@mui/material";
 
 export default function SummaryView() {
   return (
-    <div>
-      <p>TODO Summary View</p>
-    </div>
+    <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom >TODO</Typography>
+    </Box>
   )
 };
