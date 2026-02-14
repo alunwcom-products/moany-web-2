@@ -50,6 +50,8 @@ const deleteSession = () => apiClient('/session', {
 
 const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
+const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
+
 const setAccount = (account) =>
   apiClient('/account', {
     ...JSON_HEADER,
@@ -73,6 +75,7 @@ export {
   deleteSession,
   postSession,
   getAccountSummary,
+  getMonthlyTotals,
   setAccount,
   postStatement,
   UnauthorizedError,
