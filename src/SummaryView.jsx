@@ -1,7 +1,7 @@
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
-import { getMonthlyTotals } from './data/api.js';
+import { getMonthlyTotals, UnauthorizedError } from './data/api.js';
 import { useAuth } from './hooks/AuthContext.js';
 import { useMessaging } from './hooks/MessagingContext.js';
 
