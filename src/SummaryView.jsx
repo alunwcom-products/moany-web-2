@@ -1,5 +1,5 @@
 import { LineChart } from '@mui/x-charts/LineChart';
-import { Box, Typography } from "@mui/material";
+import { Box, Card, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { getMonthlyTotals, UnauthorizedError } from './data/api.js';
 import { useAuth } from './hooks/AuthContext.js';
@@ -61,8 +61,10 @@ export default function SummaryView() {
       overflowX: 'auto', // Allows scrolling if the chart hits the minWidth
       minHeight: 500     // Ensure parent has height for the chart
     }}>
-      <Typography variant="h6" gutterBottom >Monthly Balances</Typography>
-      <Box sx={{ minWidth: 800, flexGrow: 1 }}>
+      <Card variant='outlined' sx={{ minWidth: 750, flexGrow: 1, m: 3, p: 2 }}>
+        <Typography variant="h6" gutterBottom sx={{ ml: 2, mt: 1 }}>
+          Monthly Balances
+        </Typography>
         <LineChart
           xAxis={[{
             data: totals.map(d => parseYYYYMM(String(d.yearmonth))),
@@ -111,7 +113,7 @@ export default function SummaryView() {
           ]}
           height={500}
           // Ensure the chart margin leaves enough room for the wide axis
-          margin={{ left: 50, right: 50, top: 20, bottom: 50 }}
+          //margin={{ left: 0, right: 20, top: 20, bottom: 50 }}
           slotProps={{
             tooltip: {
               sx: {
@@ -129,7 +131,7 @@ export default function SummaryView() {
             },
           }}
         />
-      </Box>
+      </Card>
     </Box>
   )
 };
