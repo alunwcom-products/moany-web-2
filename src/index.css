@@ -70,3 +70,36 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Center Year/Month buttons in MUI DatePicker (targets MUI v5 classes) */
+.MuiYearCalendar-button,
+.MuiMonthCalendar-button,
+.MuiCalendarPicker-root .MuiButtonBase-root {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  line-height: 1 !important;
+}
+
+/* Selected state — ensure the content remains vertically centered */
+.MuiYearCalendar-button.Mui-selected,
+.MuiMonthCalendar-button.Mui-selected,
+.MuiCalendarPicker-root .MuiButtonBase-root.Mui-selected {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 6px !important;
+}
+
+/* Inner typography used inside the buttons */
+.MuiYearCalendar-button .MuiTypography-root,
+.MuiMonthCalendar-button .MuiTypography-root,
+.MuiCalendarPicker-root .MuiButtonBase-root .MuiTypography-root {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
