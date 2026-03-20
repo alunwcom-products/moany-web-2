@@ -12,7 +12,12 @@ const JSON_HEADER = {
 
 // generic api call with error handling
 const apiClient = async (endpoint, options = {}) => {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const { params } = options;
+  let paramStr = '';
+  if (params) paramStr = '?' + params;
+  console.log(`options = ${JSON.stringify(options)}`);
+  console.log(`fetch(${BASE_URL}${endpoint}${paramStr}`);
+  const response = await fetch(`${BASE_URL}${endpoint}${paramStr}`, {
     headers: {
       ...options.headers,
     },
@@ -52,6 +57,12 @@ const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
+const getTransactions = (paramStr) =>
+  apiClient('/transactions', {
+    ...JSON_HEADER,
+    params: paramStr,
+  });
+
 const setAccount = (account) =>
   apiClient('/account', {
     ...JSON_HEADER,
@@ -76,6 +87,7 @@ export {
   postSession,
   getAccountSummary,
   getMonthlyTotals,
+  getTransactions,
   setAccount,
   postStatement,
   UnauthorizedError,
