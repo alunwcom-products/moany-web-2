@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { TextField, MenuItem, Box, Stack } from '@mui/material';
-import { getAccountSummary, getTransactions } from './data/api';
+import { TextField, MenuItem, Box, Stack, Typography } from '@mui/material';
+import { getAccountSummary, getCategories, getTransactions } from './data/api';
 
 export default function TransactionView() {
   // State for data and loading
@@ -9,6 +9,7 @@ export default function TransactionView() {
   const [rowCount, setRowCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   // State for pagination (MUI default format)
   const [paginationModel, setPaginationModel] = useState({
@@ -23,7 +24,7 @@ export default function TransactionView() {
     endDate: '',
   });
 
-  // Fetch accounts for the dropdown on component mount
+  // Fetch accounts for the dropdown on component mount, and look-up on transaction data
   useEffect(() => {
     console.info(`useEffect() [accounts]`);
     const loadAccounts = async () => {
@@ -40,6 +41,20 @@ export default function TransactionView() {
       }
     };
     loadAccounts();
+  }, []);
+
+  // Fetch categories for look-up on transaction data.
+  useEffect(() => {
+    console.info(`useEffect() [categories]`);
+    const loadCategories = async () => {
+      try {
+        const categories = await getCategories();
+        setCategories(categories.results);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    };
+    loadCategories();
   }, []);
 
   // Main Effect: Re-run whenever pagination or filters change
@@ -116,7 +131,7 @@ export default function TransactionView() {
         return value[0]
       }
     },
-    { field: 'description', headerName: 'Description', flex: 1 },
+    { field: 'description', headerName: 'Description', flex: 1, minWidth: 300 },
     {
       field: 'net_amount', headerName: 'Amount', width: 140,
       type: 'number', editable: true, valueFormatter: (value) => {
@@ -125,11 +140,25 @@ export default function TransactionView() {
       },
     },
     { field: 'account_balance', headerName: 'Account Balance', width: 140 },
-    { field: 'category', headerName: 'Category', width: 120 },
+    {
+      field: 'category', headerName: 'Category', width: 290,
+      valueGetter: (value) => {
+        const cat = categories.filter((category) => category.uuid === value);
+        // console.log(`Got account: ${JSON.stringify(acc)}`);
+        if (cat.length === 1) {
+          return cat[0].name;
+        } else if (cat.length === 0) {
+          return ''
+        } else {
+          return 'ERROR'
+        }
+      }
+    },
   ];
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom >Transactions</Typography>
       {/* External Filter UI */}
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <TextField

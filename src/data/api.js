@@ -55,6 +55,8 @@ const deleteSession = () => apiClient('/session', {
 
 const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
+const getCategories = () => apiClient('/categories', JSON_HEADER);
+
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
 const getTransactions = (paramStr) =>
@@ -86,6 +88,7 @@ export {
   deleteSession,
   postSession,
   getAccountSummary,
+  getCategories,
   getMonthlyTotals,
   getTransactions,
   setAccount,
