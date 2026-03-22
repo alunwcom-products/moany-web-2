@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   esbuild: {
     // This will remove all console.log and debugger statements
-    drop: ['console', 'debugger'],
+    //drop: ['console', 'debugger'],
   },
 })
