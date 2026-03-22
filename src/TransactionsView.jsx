@@ -178,16 +178,6 @@ export default function TransactionView() {
         const cat = categories.find((a) => a.uuid === value);
         return cat ? cat.name : '';
       },
-      // valueGetter: (value) => {
-      //   const cat = categories.filter((category) => category.uuid === value);
-      //   if (cat.length === 1) {
-      //     return cat[0].name;
-      //   } else if (cat.length === 0) {
-      //     return ''
-      //   } else {
-      //     return 'ERROR'
-      //   }
-      // }
     },
   ];
 
@@ -253,6 +243,12 @@ export default function TransactionView() {
         loading={loading}
         editMode='row'
         paginationMode="server"
+        slotProps={{
+          basePagination: {
+            showFirstButton: true,
+            showLastButton: true,
+          },
+        }}
         // disable both column sorting and filtering
         // this would need to be handled server-side to be useful
         disableColumnSorting
