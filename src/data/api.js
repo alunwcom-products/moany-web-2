@@ -16,7 +16,7 @@ const apiClient = async (endpoint, options = {}) => {
   let paramStr = '';
   if (params) paramStr = '?' + params;
   console.log(`options = ${JSON.stringify(options)}`);
-  console.log(`fetch(${BASE_URL}${endpoint}${paramStr}`);
+  console.log(`fetch(${BASE_URL}${endpoint}${paramStr})`);
   const response = await fetch(`${BASE_URL}${endpoint}${paramStr}`, {
     headers: {
       ...options.headers,
@@ -72,6 +72,13 @@ const setAccount = (account) =>
     body: JSON.stringify(account),
   });
 
+const setTransaction = (transaction) =>
+  apiClient('/transaction', {
+    ...JSON_HEADER,
+    method: 'PUT',
+    body: JSON.stringify(transaction),
+  });
+
 const postStatement = async (file, type) => {
   const formData = new FormData();
   formData.append('file', file);
@@ -92,6 +99,7 @@ export {
   getMonthlyTotals,
   getTransactions,
   setAccount,
+  setTransaction,
   postStatement,
   UnauthorizedError,
 }
