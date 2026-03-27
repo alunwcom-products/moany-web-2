@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
@@ -248,7 +248,7 @@ export default function TransactionView() {
     setMessage('Row update error', 'error');
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       field: 'uuid', cellClassName: 'ro' // TODO 
     },
@@ -308,7 +308,7 @@ export default function TransactionView() {
     },
     { field: 'created', headerName: 'Created', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
     { field: 'modified', headerName: 'Last Modified', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
-  ];
+  ]);
 
   const initialState = {
     columns: {
