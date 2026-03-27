@@ -82,14 +82,22 @@ export default function TransactionView() {
 
   // Fetch accounts for the dropdown on component mount, and look-up on transaction data
   useEffect(() => {
-    console.info(`useEffect() [accounts]`);
+    setLoading(true);
     const loadAccounts = async () => {
       try {
         // Replace with: const data = await yourApi.getAccounts();
         const accounts = await getAccountSummary();
         setAccounts(accounts.results);
-      } catch (err) {
-        console.error("Failed to load accounts", err);
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          // user needs to login
+          logout();
+        } else {
+          // other error
+          throw error;
+        }
+      } finally {
+        setLoading(false);
       }
     };
     loadAccounts();
@@ -97,13 +105,21 @@ export default function TransactionView() {
 
   // Fetch categories for look-up on transaction data.
   useEffect(() => {
-    console.info(`useEffect() [categories]`);
+    setLoading(true);
     const loadCategories = async () => {
       try {
         const categories = await getCategories();
         setCategories(categories.results);
-      } catch (err) {
-        console.error("Failed to load categories", err);
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          // user needs to login
+          logout();
+        } else {
+          // other error
+          throw error;
+        }
+      } finally {
+        setLoading(false);
       }
     };
     loadCategories();
@@ -111,9 +127,6 @@ export default function TransactionView() {
 
   // Main Effect: Re-run whenever pagination or filters change
   useEffect(() => {
-    console.info(`useEffect()`);
-
-    let active = true;
     setLoading(true);
 
     const loadData = async () => {
@@ -131,25 +144,26 @@ export default function TransactionView() {
       });
 
       try {
-
         const response = await getTransactions(params.toString());
-
-        // const BASE_URL = import.meta.env.VITE_API_ENDPOINT;
-        // const response = await fetch(`${BASE_URL}/transactions?${params}`);
-        // const json = await response.json();
         console.log("Fetching API with:", params.toString());
 
-        if (active) {
-          setRows(response.results);
-          setRowCount(response.totalCount);
+        setRows(response.results);
+        setRowCount(response.totalCount);
+
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          // user needs to login
+          logout();
+        } else {
+          // other error
+          throw error;
         }
       } finally {
-        if (active) setLoading(false);
+        setLoading(false);
       }
     };
 
     loadData();
-    return () => { active = false; };
   }, [paginationModel, filters]);
 
   const customToolbar = () => {
