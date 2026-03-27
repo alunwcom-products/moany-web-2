@@ -7,6 +7,69 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
 
+const INITIAL_FORM_STATE = {
+  account: '',
+  category: '',
+  trans_date: new Date().toISOString().split('T')[0], // Reset to today
+  net_amount: '',
+  description: '',
+  comment: '',
+  source_type: 'MANUAL',
+};
+
+const initialState = {
+  columns: {
+    columnVisibilityModel: {
+      uuid: false,
+      entry_date: false,
+      statement_amount: false,
+      statement_balance: false,
+      type: false,
+      comment: false,
+      source_type: false,
+      source_name: false,
+      source_row: false,
+      created: false,
+      modified: false,
+    },
+  },
+};
+
+// TODO common code - factor out
+const currencyFormatter = new Intl.NumberFormat('en-GB', {
+  style: 'currency',
+  currency: 'GBP',
+});
+
+const currencyFormat = (value) => {
+  if (!value) return value;
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+  }).format(value);
+};
+
+const dateFormat = (value) => {
+  const date = new Date(value);
+  return date.toLocaleDateString('en-GB', {
+    dateStyle: 'short'
+  })
+};
+
+const dateTimeFormat = (value) => {
+  const date = new Date(value);
+  return date.toLocaleString('en-GB', {
+    dateStyle: 'short',
+    timeStyle: 'long'
+  })
+};
+
+const isoDateFormat = (value) => {
+  const date = new Date(value);
+  return date.toISOString();
+};
+
+
 export default function TransactionView() {
 
   // context providers
@@ -42,20 +105,10 @@ export default function TransactionView() {
   // dialog
   const [open, setOpen] = useState(false); // Controls the Popup
 
-  const INITIAL_FORM_STATE = {
-    account: '',
-    category: '',
-    trans_date: new Date().toISOString().split('T')[0], // Reset to today
-    net_amount: '',
-    description: '',
-    comment: '',
-    source_type: 'MANUAL',
-  };
-
   // --- Form State ---
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  const handleAddNew = () => {
+  const handleAddNewTransaction = () => {
     setFormData(INITIAL_FORM_STATE);
     setOpen(true);
   };
@@ -67,6 +120,7 @@ export default function TransactionView() {
       // await api.post('/transactions', formData);
       const transaction = await setTransaction(formData);
       console.log("New transaction:", transaction);
+      setMessage('Transaction created', 'success');
 
       setOpen(false);
       // Optional: Refresh the grid data here
@@ -166,62 +220,6 @@ export default function TransactionView() {
     loadData();
   }, [paginationModel, filters]);
 
-  const customToolbar = () => {
-    return (
-      <Toolbar>
-        <Tooltip title="Add new transaction">
-          <ToolbarButton
-            aria-describedby="new-panel"
-            onClick={() => handleAddNew()}
-          >
-            <AddIcon fontSize="small" />
-          </ToolbarButton>
-        </Tooltip>
-
-        <Tooltip title="Columns">
-          <ColumnsPanelTrigger render={<ToolbarButton />}>
-            <ViewColumnIcon fontSize="small" />
-          </ColumnsPanelTrigger>
-        </Tooltip>
-      </Toolbar>
-    );
-  };
-
-
-  // TODO common code - factor out
-  const currencyFormatter = new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-  });
-
-  const currencyFormat = (value) => {
-    if (!value) return value;
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-    }).format(value);
-  };
-
-  const dateFormat = (value) => {
-    const date = new Date(value);
-    return date.toLocaleDateString('en-GB', {
-      dateStyle: 'short'
-    })
-  };
-
-  const dateTimeFormat = (value) => {
-    const date = new Date(value);
-    return date.toLocaleString('en-GB', {
-      dateStyle: 'short',
-      timeStyle: 'long'
-    })
-  };
-
-  const isoDateFormat = (value) => {
-    const date = new Date(value);
-    return date.toISOString();
-  };
-
   const rowUpdate = async (updatedRow, originalRow) => {
 
     console.log(updatedRow);
@@ -229,6 +227,7 @@ export default function TransactionView() {
     try {
       // handleLoading(true);
       const transaction = await setTransaction(updatedRow);
+      setMessage('Row updated', 'success');
       return transaction;
     } catch (error) {
       if (error instanceof UnauthorizedError) {
@@ -246,6 +245,27 @@ export default function TransactionView() {
   const errorHandler = (error) => {
     console.error('Row update error: ', error);
     setMessage('Row update error', 'error');
+  };
+
+  const customToolbar = () => {
+    return (
+      <Toolbar>
+        <Tooltip title="Add new transaction">
+          <ToolbarButton
+            aria-describedby="new-panel"
+            onClick={() => handleAddNewTransaction()}
+          >
+            <AddIcon fontSize="small" />
+          </ToolbarButton>
+        </Tooltip>
+
+        <Tooltip title="Columns">
+          <ColumnsPanelTrigger render={<ToolbarButton />}>
+            <ViewColumnIcon fontSize="small" />
+          </ColumnsPanelTrigger>
+        </Tooltip>
+      </Toolbar>
+    );
   };
 
   const columns = useMemo(() => [
@@ -310,24 +330,6 @@ export default function TransactionView() {
     { field: 'modified', headerName: 'Last Modified', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
   ]);
 
-  const initialState = {
-    columns: {
-      columnVisibilityModel: {
-        uuid: false,
-        entry_date: false,
-        statement_amount: false,
-        statement_balance: false,
-        type: false,
-        comment: false,
-        source_type: false,
-        source_name: false,
-        source_row: false,
-        created: false,
-        modified: false,
-      },
-    },
-  };
-
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" gutterBottom >Transactions</Typography>
@@ -379,6 +381,9 @@ export default function TransactionView() {
             showFirstButton: true,
             showLastButton: true,
           },
+          toolbar: {
+            handleAddNewTransaction,
+          }
         }}
         // disable both column sorting and filtering
         // this would need to be handled server-side to be useful
