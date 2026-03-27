@@ -33,6 +33,12 @@ export default function TransactionView() {
     endDate: '',
   });
 
+  const handleFilterUpdate = (obj) => {
+    // reset page when updating the filters
+    setPaginationModel(value => ({ ...value, page: 0 }));
+    setFilters((value) => ({ ...value, ...obj }));
+  }
+
   // dialog
   const [open, setOpen] = useState(false); // Controls the Popup
 
@@ -318,7 +324,7 @@ export default function TransactionView() {
           label="Account"
           size="small"
           value={filters.account}
-          onChange={(e) => setFilters(prev => ({ ...prev, account: e.target.value, page: 0 }))}
+          onChange={(e) => handleFilterUpdate({ account: e.target.value })}
           sx={{ width: 220 }}
         >
           <MenuItem value="">All Accounts</MenuItem>
@@ -332,7 +338,7 @@ export default function TransactionView() {
           label="Start Date"
           size="small"
           InputLabelProps={{ shrink: true }}
-          onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+          onChange={(e) => handleFilterUpdate({ startDate: e.target.value })}
         />
 
         <TextField
@@ -340,7 +346,7 @@ export default function TransactionView() {
           label="End Date"
           size="small"
           InputLabelProps={{ shrink: true }}
-          onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+          onChange={(e) => handleFilterUpdate({ endDate: e.target.value })}
         />
       </Stack>
 
