@@ -36,10 +36,10 @@ const initialState = {
 };
 
 // TODO common code - factor out
-const currencyFormatter = new Intl.NumberFormat('en-GB', {
-  style: 'currency',
-  currency: 'GBP',
-});
+// const currencyFormatter = new Intl.NumberFormat('en-GB', {
+//   style: 'currency',
+//   currency: 'GBP',
+// });
 
 const currencyFormat = (value) => {
   if (!value) return value;
@@ -56,13 +56,13 @@ const dateFormat = (value) => {
   })
 };
 
-const dateTimeFormat = (value) => {
-  const date = new Date(value);
-  return date.toLocaleString('en-GB', {
-    dateStyle: 'short',
-    timeStyle: 'long'
-  })
-};
+// const dateTimeFormat = (value) => {
+//   const date = new Date(value);
+//   return date.toLocaleString('en-GB', {
+//     dateStyle: 'short',
+//     timeStyle: 'long'
+//   })
+// };
 
 const isoDateFormat = (value) => {
   const date = new Date(value);
