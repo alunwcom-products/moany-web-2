@@ -12,16 +12,16 @@ const JSON_HEADER = {
 
 // generic api call with error handling
 const apiClient = async (endpoint, options = {}) => {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const { params } = options;
+  let paramStr = '';
+  if (params) paramStr = '?' + params;
+  const response = await fetch(`${BASE_URL}${endpoint}${paramStr}`, {
     headers: {
       ...options.headers,
     },
     credentials: 'include',
     ...options,
   });
-
-  console.debug(`${options.method || 'GET'} ${endpoint}: ${response.status}`);
-
   if (!response.ok) {
     if (response.status === 401) {
       throw new UnauthorizedError('401 Unauthorized');
@@ -31,7 +31,6 @@ const apiClient = async (endpoint, options = {}) => {
     }
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
-
   return response.json();
 };
 
@@ -50,13 +49,28 @@ const deleteSession = () => apiClient('/session', {
 
 const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
+const getCategories = () => apiClient('/categories', JSON_HEADER);
+
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
+
+const getTransactions = (paramStr) =>
+  apiClient('/transactions', {
+    ...JSON_HEADER,
+    params: paramStr,
+  });
 
 const setAccount = (account) =>
   apiClient('/account', {
     ...JSON_HEADER,
     method: 'PUT',
     body: JSON.stringify(account),
+  });
+
+const setTransaction = (transaction) =>
+  apiClient('/transaction', {
+    ...JSON_HEADER,
+    method: 'PUT',
+    body: JSON.stringify(transaction),
   });
 
 const postStatement = async (file, type) => {
@@ -75,8 +89,11 @@ export {
   deleteSession,
   postSession,
   getAccountSummary,
+  getCategories,
   getMonthlyTotals,
+  getTransactions,
   setAccount,
+  setTransaction,
   postStatement,
   UnauthorizedError,
 }
