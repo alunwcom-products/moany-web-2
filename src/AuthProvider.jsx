@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.debug('AuthProvider: useEffect()');
     const initSession = async () => {
       await checkSession();
       setIsLoading(false);

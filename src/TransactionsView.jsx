@@ -116,16 +116,14 @@ export default function TransactionView() {
   // 2. Handle Form Submission
   const handleSubmit = async () => {
     try {
-      console.log("Saving Transaction:", formData);
-      // await api.post('/transactions', formData);
       const transaction = await setTransaction(formData);
-      console.log("New transaction:", transaction);
       setMessage('Transaction created', 'success');
 
       setOpen(false);
       // Optional: Refresh the grid data here
     } catch (error) {
       console.error("Save failed", error);
+      setMessage('Save failed', 'error');
     }
   };
 
@@ -184,8 +182,6 @@ export default function TransactionView() {
     setLoading(true);
 
     const loadData = async () => {
-      console.info('loadData()');
-
       const { page, pageSize } = paginationModel;
 
       // Map state to your API parameters (limit/offset)
@@ -199,7 +195,6 @@ export default function TransactionView() {
 
       try {
         const response = await getTransactions(params.toString());
-        console.log("Fetching API with:", params.toString());
 
         setRows(response.results);
         setRowCount(response.totalCount);
@@ -221,11 +216,8 @@ export default function TransactionView() {
   }, [paginationModel, filters]);
 
   const rowUpdate = async (updatedRow, originalRow) => {
-
-    console.log(updatedRow);
-
     try {
-      // handleLoading(true);
+      setLoading(true);
       const transaction = await setTransaction(updatedRow);
       setMessage('Row updated', 'success');
       return transaction;
@@ -235,10 +227,11 @@ export default function TransactionView() {
         logout();
       } else {
         // other error
+        setMessage('Save failed', 'error');
         throw error;
       }
     } finally {
-      // handleLoading(false);
+      setLoading(false);
     }
   };
 
@@ -277,8 +270,6 @@ export default function TransactionView() {
       valueFormatter: dateFormat,
       valueSetter: (value, row) => {
         const dateValue = value;
-
-        // console.log(`${JSON.stringify(params)} -> ${value}`);
 
         // Convert the JS Date back to a simple string
         const formattedDate = dateValue ? new Date(dateValue).toISOString().split('T')[0] : null;

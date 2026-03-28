@@ -15,8 +15,6 @@ const apiClient = async (endpoint, options = {}) => {
   const { params } = options;
   let paramStr = '';
   if (params) paramStr = '?' + params;
-  console.log(`options = ${JSON.stringify(options)}`);
-  console.log(`fetch(${BASE_URL}${endpoint}${paramStr})`);
   const response = await fetch(`${BASE_URL}${endpoint}${paramStr}`, {
     headers: {
       ...options.headers,
@@ -24,9 +22,6 @@ const apiClient = async (endpoint, options = {}) => {
     credentials: 'include',
     ...options,
   });
-
-  console.debug(`${options.method || 'GET'} ${endpoint}: ${response.status}`);
-
   if (!response.ok) {
     if (response.status === 401) {
       throw new UnauthorizedError('401 Unauthorized');
@@ -36,7 +31,6 @@ const apiClient = async (endpoint, options = {}) => {
     }
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
-
   return response.json();
 };
 
