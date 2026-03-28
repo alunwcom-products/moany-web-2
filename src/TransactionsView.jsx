@@ -100,7 +100,7 @@ export default function TransactionView() {
     // reset page when updating the filters
     setPaginationModel(value => ({ ...value, page: 0 }));
     setFilters((value) => ({ ...value, ...obj }));
-  }
+  };
 
   // dialog
   const [open, setOpen] = useState(false); // Controls the Popup
@@ -116,7 +116,7 @@ export default function TransactionView() {
   // 2. Handle Form Submission
   const handleSubmit = async () => {
     try {
-      const transaction = await setTransaction(formData);
+      await setTransaction(formData);
       setMessage('Transaction created', 'success');
 
       setOpen(false);
