@@ -49,12 +49,16 @@ const deleteSession = () => apiClient('/session', {
 
 const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
-const getCategories = () => apiClient('/categories', JSON_HEADER);
-
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
 const getTransactions = (paramStr) =>
   apiClient('/transactions', {
+    ...JSON_HEADER,
+    params: paramStr,
+  });
+
+const getCategories = (paramStr) =>
+  apiClient('/categories', {
     ...JSON_HEADER,
     params: paramStr,
   });
@@ -64,6 +68,13 @@ const setAccount = (account) =>
     ...JSON_HEADER,
     method: 'PUT',
     body: JSON.stringify(account),
+  });
+
+const setCategory = (category) =>
+  apiClient('/categories', {
+    ...JSON_HEADER,
+    method: 'PUT',
+    body: JSON.stringify(category),
   });
 
 const setTransaction = (transaction) =>
@@ -93,6 +104,7 @@ export {
   getMonthlyTotals,
   getTransactions,
   setAccount,
+  setCategory,
   setTransaction,
   postStatement,
   UnauthorizedError,

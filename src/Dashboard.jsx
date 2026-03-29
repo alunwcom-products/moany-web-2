@@ -48,6 +48,7 @@ export default function Dashboard() {
     { key: 'summary', label: 'Summary', link: '/' },
     { key: 'accounts', label: 'Accounts', link: '/accounts' },
     { key: 'transactions', label: 'Transactions', link: '/transactions' },
+    { key: 'categories', label: 'Categories', link: '/categories' },
     { key: 'upload', label: 'Statement Upload', link: '/upload' },
     { key: 'spending', label: 'Monthly Spending', link: '/spending' },
   ];
