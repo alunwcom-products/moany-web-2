@@ -82,7 +82,7 @@ export default function MonthlySpendingView() {
     }}>
       <Card variant='outlined' sx={{ minWidth: 750, flexGrow: 1, m: 3, p: 2 }}>
         <Typography variant="h6" gutterBottom sx={{ ml: 2, mt: 1 }}>
-          Monthly Balances
+          Monthly Balances (WIP)
         </Typography>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>

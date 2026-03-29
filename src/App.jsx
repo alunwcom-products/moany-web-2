@@ -49,10 +49,10 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { index: true, element: <SummaryView /> },
-          { path: "spending", element: <MonthlySpendingView /> },
           { path: "accounts", element: <AccountsView /> },
           { path: "transactions", element: <TransactionsView /> },
           { path: "upload", element: <StatementUploadView /> },
+          { path: "spending", element: <MonthlySpendingView /> },
         ],
       },
     ],

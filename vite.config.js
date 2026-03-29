@@ -1,11 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  esbuild: {
-    // This will remove all console.log and debugger statements
-    drop: ['console', 'debugger'],
+  build: {
+    // Tell Vite to use oxc for minification
+    minify: 'oxc',
+    
+    // Currently, OXC's 'drop' is often configured via terser-like options 
+    // or passed directly to the compressor if supported by your version
+
+    // terserOptions: {
+    //   compress: {
+    //     drop_console: true,
+    //     drop_debugger: true,
+    //   },
+    // },
   },
 })

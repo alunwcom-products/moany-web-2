@@ -46,10 +46,10 @@ export default function Dashboard() {
 
   const mainMenu = [
     { key: 'summary', label: 'Summary', link: '/' },
-    { key: 'spending', label: 'Monthly Spending', link: '/spending' },
     { key: 'accounts', label: 'Accounts', link: '/accounts' },
     { key: 'transactions', label: 'Transactions', link: '/transactions' },
     { key: 'upload', label: 'Statement Upload', link: '/upload' },
+    { key: 'spending', label: 'Monthly Spending', link: '/spending' },
   ];
 
   return (
