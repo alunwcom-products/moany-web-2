@@ -18,6 +18,11 @@ const initialState = {
       uuid: false,
     },
   },
+  pagination: {
+    paginationModel: {
+      pageSize: 25
+    }
+  },
 };
 
 export default function CategoryView() {
@@ -173,7 +178,7 @@ export default function CategoryView() {
         // this would need to be handled server-side to be useful
         //disableColumnSorting
         //disableColumnFilter
-        pageSizeOptions={[10, 25, 100]}
+        pageSizeOptions={[10, 25, 50]}
         //sortModel={sortModel}
         //onSortModelChange={(newModel) => setSortModel(newModel)}
         showToolbar
