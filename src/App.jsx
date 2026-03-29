@@ -7,6 +7,7 @@ import LoginView from './LoginView';
 import AccountsView from './AccountsView';
 import SummaryView from './SummaryView';
 import TransactionsView from './TransactionsView';
+import CategoryView from './CategoryView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
 import { MessagingProvider } from './MessagingProvider';
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
           { index: true, element: <SummaryView /> },
           { path: "accounts", element: <AccountsView /> },
           { path: "transactions", element: <TransactionsView /> },
+          { path: "categories", element: <CategoryView /> },
           { path: "upload", element: <StatementUploadView /> },
           { path: "spending", element: <MonthlySpendingView /> },
         ],

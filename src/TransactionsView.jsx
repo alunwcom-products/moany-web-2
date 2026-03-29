@@ -310,11 +310,11 @@ export default function TransactionView() {
       field: 'category', headerName: 'Category', flex: 1, minWidth: 290, type: 'singleSelect', editable: true,
       valueOptions: categories.map((cat) => ({
         value: cat.uuid,
-        label: cat.name,
+        label: cat.full_name,
       })),
       valueFormatter: (value) => {
         const cat = categories.find((cat) => cat.uuid === value);
-        return cat ? cat.name : '';
+        return cat ? cat.full_name : '';
       },
     },
     { field: 'created', headerName: 'Created', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
