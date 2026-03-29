@@ -87,6 +87,7 @@ export default function SummaryView() {
               curve: 'linear',
               showMark: false,
               label: 'Balance',
+              color: 'rgba(0, 0, 0, 1)', // Custom Color + Opacity
               valueFormatter: (value) => ukCurrencyFormatter(value),
             },
             {
@@ -94,6 +95,7 @@ export default function SummaryView() {
               curve: 'linear',
               showMark: false,
               label: 'Income',
+              color: 'rgba(0, 0, 194, 0.3)', // Custom Color + Opacity
               valueFormatter: (value) => ukCurrencyFormatter(value),
             },
             {
@@ -101,6 +103,7 @@ export default function SummaryView() {
               curve: 'linear',
               showMark: false,
               label: 'Outgoings',
+              color: 'rgba(170, 0, 0, 0.3)', // Custom Color + Opacity
               valueFormatter: (value) => ukCurrencyFormatter(value),
             },
             {
@@ -108,6 +111,7 @@ export default function SummaryView() {
               curve: 'linear',
               showMark: false,
               label: 'Monthly Change',
+              color: 'rgba(12, 175, 61, 0.83)', // Custom Color + Opacity
               valueFormatter: (value) => ukCurrencyFormatter(value),
             },
           ]}
