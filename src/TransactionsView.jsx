@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
+import lodash from 'lodash';
 
 const INITIAL_FORM_STATE = {
   account: '',
@@ -190,6 +191,12 @@ export default function TransactionView() {
   }, [loadData]);
 
   const rowUpdate = async (updatedRow, originalRow) => {
+
+    if (lodash.isEqual(originalRow, updatedRow)) {
+      setMessage('Row not changed', 'info');
+      return originalRow;
+    }
+
     try {
       const transaction = await setTransaction(updatedRow);
       setMessage('Row updated', 'success');
@@ -240,11 +247,17 @@ export default function TransactionView() {
       field: 'trans_date', headerName: 'Transaction Date', width: 130, type: 'date', editable: true,
       valueFormatter: dateFormat,
       valueSetter: (value, row) => {
-        const dateValue = value;
+        if (!value) return { ...row, trans_date: null };
 
-        // Convert the JS Date back to a simple string
-        const formattedDate = dateValue ? new Date(dateValue).toISOString().split('T')[0] : null;
-        return { ...row, ['trans_date']: formattedDate };
+        const d = new Date(value);
+        // Manual formatting to YYYY-MM-DD using local time
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+
+        return { ...row, trans_date: formattedDate };
       },
     },
     { field: 'entry_date', headerName: 'Entry Date', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
