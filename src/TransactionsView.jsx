@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
@@ -35,19 +35,12 @@ const initialState = {
   },
 };
 
-// TODO common code - factor out
-// const currencyFormatter = new Intl.NumberFormat('en-GB', {
-//   style: 'currency',
-//   currency: 'GBP',
-// });
+const currencyFormatter = new Intl.NumberFormat('en-GB', {
+  style: 'currency',
+  currency: 'GBP',
+});
 
-const currencyFormat = (value) => {
-  if (!value) return value;
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-  }).format(value);
-};
+const currencyFormat = (value) => value == null ? '' : currencyFormatter.format(value);
 
 const dateFormat = (value) => {
   const date = new Date(value);
@@ -56,19 +49,10 @@ const dateFormat = (value) => {
   })
 };
 
-// const dateTimeFormat = (value) => {
-//   const date = new Date(value);
-//   return date.toLocaleString('en-GB', {
-//     dateStyle: 'short',
-//     timeStyle: 'long'
-//   })
-// };
-
 const isoDateFormat = (value) => {
   const date = new Date(value);
   return date.toISOString();
 };
-
 
 export default function TransactionView() {
 
@@ -118,7 +102,7 @@ export default function TransactionView() {
     try {
       await setTransaction(formData);
       setMessage('Transaction created', 'success');
-
+      await loadData();
       setOpen(false);
       // Optional: Refresh the grid data here
     } catch (error) {
@@ -134,7 +118,6 @@ export default function TransactionView() {
 
   // Fetch accounts for the dropdown on component mount, and look-up on transaction data
   useEffect(() => {
-    setLoading(true);
     const loadAccounts = async () => {
       try {
         // Replace with: const data = await yourApi.getAccounts();
@@ -148,8 +131,6 @@ export default function TransactionView() {
           // other error
           throw error;
         }
-      } finally {
-        setLoading(false);
       }
     };
     loadAccounts();
@@ -157,7 +138,6 @@ export default function TransactionView() {
 
   // Fetch categories for look-up on transaction data.
   useEffect(() => {
-    setLoading(true);
     const loadCategories = async () => {
       try {
         const categories = await getCategories();
@@ -170,54 +150,47 @@ export default function TransactionView() {
           // other error
           throw error;
         }
-      } finally {
-        setLoading(false);
       }
     };
     loadCategories();
   }, []);
 
+  // cached function to reload data
+  const loadData = useCallback(async (abortController) => {
+    setLoading(true);
+    const { page, pageSize } = paginationModel;
+
+    const params = new URLSearchParams({
+      limit: pageSize.toString(),
+      offset: (page * pageSize).toString(),
+      ...(filters.account && { account: filters.account }),
+      ...(filters.startDate && { startDate: filters.startDate }),
+      ...(filters.endDate && { endDate: filters.endDate }),
+    });
+
+    try {
+      const response = await getTransactions(params.toString(), abortController);
+      setRows(response.results);
+      setRowCount(response.totalCount);
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        logout();
+      } else {
+        setMessage('Failed to load transactions', 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [paginationModel, filters, logout, setMessage]); // Depend on state that affects the query
+
   // Main Effect: Re-run whenever pagination or filters change
   useEffect(() => {
-    setLoading(true);
-
-    const loadData = async () => {
-      const { page, pageSize } = paginationModel;
-
-      // Map state to your API parameters (limit/offset)
-      const params = new URLSearchParams({
-        limit: pageSize.toString(),
-        offset: (page * pageSize).toString(),
-        ...(filters.account && { account: filters.account }),
-        ...(filters.startDate && { startDate: filters.startDate }),
-        ...(filters.endDate && { endDate: filters.endDate }),
-      });
-
-      try {
-        const response = await getTransactions(params.toString());
-
-        setRows(response.results);
-        setRowCount(response.totalCount);
-
-      } catch (error) {
-        if (error instanceof UnauthorizedError) {
-          // user needs to login
-          logout();
-        } else {
-          // other error
-          throw error;
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [paginationModel, filters]);
+    const abortController = new AbortController();
+    loadData(abortController);
+  }, [loadData]);
 
   const rowUpdate = async (updatedRow, originalRow) => {
     try {
-      setLoading(true);
       const transaction = await setTransaction(updatedRow);
       setMessage('Row updated', 'success');
       return transaction;
@@ -230,8 +203,6 @@ export default function TransactionView() {
         setMessage('Save failed', 'error');
         throw error;
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -319,7 +290,7 @@ export default function TransactionView() {
     },
     { field: 'created', headerName: 'Created', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
     { field: 'modified', headerName: 'Last Modified', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
-  ]);
+  ], [accounts, categories]); // update if accounts or categories change
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>

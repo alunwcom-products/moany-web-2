@@ -16,6 +16,7 @@ const apiClient = async (endpoint, options = {}) => {
   let paramStr = '';
   if (params) paramStr = '?' + params;
   const response = await fetch(`${BASE_URL}${endpoint}${paramStr}`, {
+    signal: options.signal,
     headers: {
       ...options.headers,
     },
@@ -51,19 +52,21 @@ const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
-const getTransactions = (paramStr) =>
+const getTransactions = (paramStr, abortController) =>
   apiClient('/transactions', {
     ...JSON_HEADER,
     params: paramStr,
+    signal: abortController?.signal,
   });
 
-const getCategories = (paramStr) =>
+const getCategories = (paramStr, abortController) =>
   apiClient('/categories', {
     ...JSON_HEADER,
     params: paramStr,
+    signal: abortController?.signal,
   });
 
-const setAccount = (account) =>
+const setAccount = (paramStr, abortController) =>
   apiClient('/account', {
     ...JSON_HEADER,
     method: 'PUT',
