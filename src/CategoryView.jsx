@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getCategories, setCategory, UnauthorizedError } from './data/api';
@@ -9,7 +9,7 @@ import { useMessaging } from './hooks/MessagingContext';
 
 const INITIAL_FORM_STATE = {
   name: '',
-  parent_id: '',
+  parent_id: '5d4238f7-a6be-4b98-bec3-1d65b8dc46c8', // 'Account Transfers/Balances' as default parent
 };
 
 const initialState = {
@@ -20,11 +20,13 @@ const initialState = {
   },
   pagination: {
     paginationModel: {
-      pageSize: 25
+      pageSize: 10
     }
   },
 };
 
+// NOTE: top-level (root) categories (i.e. those without parent_id) should not be 
+// creatable or editable via the UI. These should only be created at system-level
 export default function CategoryView() {
 
   // context providers
@@ -51,11 +53,8 @@ export default function CategoryView() {
     try {
       await setCategory(formData);
       setMessage('Category created', 'success');
-
+      await loadData();
       setOpen(false);
-
-      // TODO: Refresh the grid data here
-
     } catch (error) {
       console.error("Save failed", error);
       setMessage('Save failed', 'error');
@@ -67,11 +66,11 @@ export default function CategoryView() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  useEffect(() => {
+  const loadData = useCallback(async (abortController) => {
     setLoading(true);
     const loadData = async () => {
       try {
-        const response = await getCategories();
+        const response = await getCategories(abortController);
         setRows(response.results);
       } catch (error) {
         if (error instanceof UnauthorizedError) {
@@ -86,6 +85,11 @@ export default function CategoryView() {
       }
     };
     loadData();
+  }, [logout, setMessage]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    loadData(abortController);
   }, []);
 
   const rowUpdate = async (updatedRow, originalRow) => {
@@ -140,7 +144,6 @@ export default function CategoryView() {
     { field: 'name', headerName: 'Category Name', width: 200, editable: true },
     {
       field: 'parent_id', headerName: 'Parent', width: 300, type: 'singleSelect', editable: true,
-      // TODO prevent category being its own parent!
       valueOptions: rows.map((cat) => ({
         value: cat.uuid,
         label: cat.full_name,
@@ -150,7 +153,7 @@ export default function CategoryView() {
         return cat ? cat.full_name : '';
       },
     },
-  ]);
+  ], [rows]);
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -163,6 +166,8 @@ export default function CategoryView() {
         density='compact'
         columns={columns}
         initialState={initialState}
+        isCellEditable={(params) => params.row.parent_id && params.row.parent_id !== ''}
+        getRowClassName={(params) => (params.row.parent_id && params.row.parent_id !== '') ? '' : 'ro'}
         loading={loading}
         editMode='row'
         slotProps={{
@@ -174,10 +179,6 @@ export default function CategoryView() {
             handleAddCategory,
           }
         }}
-        // disable both column sorting and filtering
-        // this would need to be handled server-side to be useful
-        //disableColumnSorting
-        //disableColumnFilter
         pageSizeOptions={[10, 25, 50]}
         //sortModel={sortModel}
         //onSortModelChange={(newModel) => setSortModel(newModel)}
@@ -189,7 +190,7 @@ export default function CategoryView() {
         sx={{
           '& .ro': { // read-only className
             backgroundColor: '#f9f9f9ff', // Light grey background
-            //color: '#818181',           // Muted text color
+            color: '#666666',           // Muted text color
             //cursor: 'not-allowed',      // Changes the mouse pointer
           }
         }}
