@@ -59,10 +59,10 @@ const getTransactions = (paramStr, abortController) =>
     signal: abortController?.signal,
   });
 
-const getCategories = (paramStr, abortController) =>
+const getCategories = (abortController) =>
   apiClient('/categories', {
     ...JSON_HEADER,
-    params: paramStr,
+    //params: paramStr,
     signal: abortController?.signal,
   });
 

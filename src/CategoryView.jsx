@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getCategories, setCategory, UnauthorizedError } from './data/api';
@@ -20,7 +20,7 @@ const initialState = {
   },
   pagination: {
     paginationModel: {
-      pageSize: 25
+      pageSize: 10
     }
   },
 };
@@ -53,11 +53,8 @@ export default function CategoryView() {
     try {
       await setCategory(formData);
       setMessage('Category created', 'success');
-
+      await loadData();
       setOpen(false);
-
-      // TODO: Refresh the grid data here
-
     } catch (error) {
       console.error("Save failed", error);
       setMessage('Save failed', 'error');
@@ -69,11 +66,11 @@ export default function CategoryView() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  useEffect(() => {
+  const loadData = useCallback(async (abortController) => {
     setLoading(true);
     const loadData = async () => {
       try {
-        const response = await getCategories();
+        const response = await getCategories(abortController);
         setRows(response.results);
       } catch (error) {
         if (error instanceof UnauthorizedError) {
@@ -88,6 +85,11 @@ export default function CategoryView() {
       }
     };
     loadData();
+  }, [logout, setMessage]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    loadData(abortController);
   }, []);
 
   const rowUpdate = async (updatedRow, originalRow) => {
