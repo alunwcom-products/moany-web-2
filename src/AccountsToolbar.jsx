@@ -4,7 +4,6 @@ import {
   ToolbarButton,
   ColumnsPanelTrigger,
   FilterPanelTrigger,
-  useGridApiContext,
 } from '@mui/x-data-grid';
 import Tooltip from '@mui/material/Tooltip';
 import Badge from '@mui/material/Badge';
@@ -19,18 +18,16 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { v4 as uuidv4 } from 'uuid';
 import { setAccount, UnauthorizedError } from './data/api';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
 
-export default function AccountsToolbar({ handleLoading, accounts = [] }) {
+export default function AccountsToolbar({ handleLoading, setAccounts, accounts = [] }) {
 
   // context providers
   const { logout } = useAuth();
   const { setMessage } = useMessaging();
 
-  const apiRef = useGridApiContext();
   const [newPanelOpen, setNewPanelOpen] = useState(false);
   const newPanelTriggerRef = useRef(null);
 
@@ -43,26 +40,18 @@ export default function AccountsToolbar({ handleLoading, accounts = [] }) {
 
     const formData = new FormData(event.target);
     const newRow = {
-      uuid: uuidv4(),
       name: formData.get('name'),
       account_num: formData.get('account_num'),
       sortcode: formData.get('sortcode'),
-      type: "DEBIT",
-      active: true,
-      earliest: new Date(0),
-      latest: new Date(0),
-      starting_balance: 0,
-      latest_balance: 0,
     };
-
-    apiRef.current.updateRows([
-      newRow
-    ]);
 
     try {
       handleLoading(true);
-      await setAccount(newRow);
+      const newAccount = await setAccount(newRow);
+      setAccounts((prev) => [...prev, newAccount]);
+      setMessage('Account created', 'success');
     } catch (error) {
+      setMessage('Save failed', 'error');
       if (error instanceof UnauthorizedError) {
         // user needs to login
         logout();

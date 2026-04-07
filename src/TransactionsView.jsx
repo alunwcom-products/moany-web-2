@@ -105,7 +105,6 @@ export default function TransactionView() {
       setMessage('Transaction created', 'success');
       await loadData();
       setOpen(false);
-      // Optional: Refresh the grid data here
     } catch (error) {
       console.error("Save failed", error);
       setMessage('Save failed', 'error');

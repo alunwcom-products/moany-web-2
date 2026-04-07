@@ -84,6 +84,9 @@ export default function AccountsView() {
         starting_balance: false,
       },
     },
+    sorting: {
+      sortModel: [{ field: 'name', sort: 'asc' }],
+    },
     pagination: {
       paginationModel: {
         pageSize: 25
@@ -117,14 +120,19 @@ export default function AccountsView() {
     try {
       handleLoading(true);
       await setAccount(updatedRow);
+      setMessage('Row updated', 'success');
+      setMessage('TEST', 'success');
+      setMessage('AGAIN', 'success');
       return updatedRow;
     } catch (error) {
+      setMessage('Save failed', 'error');
       if (error instanceof UnauthorizedError) {
         // user needs to login
         logout();
       } else {
         // other error
-        throw error;
+        return originalRow;
+        // throw error;
       }
     } finally {
       handleLoading(false);
@@ -134,6 +142,7 @@ export default function AccountsView() {
   const errorHandler = (error) => {
     console.error('Row update error: ', error);
     setMessage('Row update error', 'error');
+
   };
 
   // store filter
@@ -165,7 +174,8 @@ export default function AccountsView() {
         slotProps={{
           toolbar: {
             handleLoading,
-            accounts
+            setAccounts,
+            accounts,
           }
         }}
         showToolbar
