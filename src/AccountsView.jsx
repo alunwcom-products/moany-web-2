@@ -121,8 +121,6 @@ export default function AccountsView() {
       handleLoading(true);
       await setAccount(updatedRow);
       setMessage('Row updated', 'success');
-      setMessage('TEST', 'success');
-      setMessage('AGAIN', 'success');
       return updatedRow;
     } catch (error) {
       setMessage('Save failed', 'error');
