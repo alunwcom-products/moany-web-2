@@ -66,7 +66,7 @@ const getCategories = (abortController) =>
     signal: abortController?.signal,
   });
 
-const setAccount = (paramStr, abortController) =>
+const setAccount = (account) =>
   apiClient('/account', {
     ...JSON_HEADER,
     method: 'PUT',
