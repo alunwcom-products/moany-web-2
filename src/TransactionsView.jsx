@@ -278,7 +278,7 @@ export default function TransactionView() {
       }
     },
     { field: 'source_name', headerName: 'Src. Name', width: 270, cellClassName: 'ro', },
-    { field: 'source_row', headerName: 'Src. Row', width: 50, type: 'number', cellClassName: 'ro', },
+    { field: 'source_row', headerName: 'Src. Row', width: 50, type: 'number', editable: true },
     { field: 'type', headerName: 'Type', width: 100, editable: true },
     { field: 'description', headerName: 'Description', flex: 1, minWidth: 320, editable: true },
     { field: 'comment', headerName: 'Comment', flex: 1, minWidth: 200, editable: true },
