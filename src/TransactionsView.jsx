@@ -417,7 +417,7 @@ export default function TransactionView() {
             >
               {categories.map((cat) => (
                 <MenuItem key={cat.uuid} value={cat.uuid}>
-                  {cat.name}
+                  {cat.full_name}
                 </MenuItem>
               ))}
             </TextField>
