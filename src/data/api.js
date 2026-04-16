@@ -52,6 +52,13 @@ const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
+const getCategoryTotals = (paramStr, abortController) =>
+  apiClient('/category-totals', {
+    ...JSON_HEADER,
+    params: paramStr,
+    signal: abortController?.signal,
+  });
+
 const getTransactions = (paramStr, abortController) =>
   apiClient('/transactions', {
     ...JSON_HEADER,
@@ -104,6 +111,7 @@ export {
   postSession,
   getAccountSummary,
   getCategories,
+  getCategoryTotals,
   getMonthlyTotals,
   getTransactions,
   setAccount,
