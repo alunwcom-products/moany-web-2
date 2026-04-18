@@ -11,7 +11,7 @@ import CategoryView from './CategoryView';
 import StatementUploadView from './StatementUploadView';
 import ProtectedRoute from './ProtectedRoute';
 import { MessagingProvider } from './MessagingProvider';
-import MonthlySpendingView from './MonthlySpendingView';
+import CategorySpendingView from './CategorySpendingView';
 
 // TODO check what this needs to do - and UI
 const rootErrorBoundary = () => {
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
           { path: "transactions", element: <TransactionsView /> },
           { path: "categories", element: <CategoryView /> },
           { path: "upload", element: <StatementUploadView /> },
-          { path: "spending", element: <MonthlySpendingView /> },
+          { path: "category_spending", element: <CategorySpendingView /> },
         ],
       },
     ],
