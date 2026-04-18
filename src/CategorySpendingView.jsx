@@ -18,61 +18,61 @@ const currencyFormatter = new Intl.NumberFormat('en-GB', {
 const currencyFormat = (value) => value == null ? '' : currencyFormatter.format(value);
 
 export default function CategorySpendingView() {
-
-  // context providers
   const { logout } = useAuth();
   const { setMessage } = useMessaging();
 
-  // state
-  const [rows, setRows] = useState([]); // category totals data
-  const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month')); // start date
-  const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month')); // end date
+  const [rows, setRows] = useState([]);
+  const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month'));
+  const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month'));
 
-  // convert start and end date to API parameter string
-  const getParams = () => {
-    return new URLSearchParams({
-      ...({ startMonth: startDate.format('YYYY-MM') }),
-      ...({ endMonth: endDate.format('YYYY-MM') }),
-    }).toString();
-  };
+  // 1. Memoized Column Extraction
+  const dateColumns = useMemo(() => {
+    if (rows.length === 0) return [];
+    return Object.keys(rows[0])
+      .filter((key) => /^\d{4}-\d{2}$/.test(key))
+      .sort();
+  }, [rows]);
+
+  // 2. Pre-calculate Totals and Averages
+  // This saves the CPU from doing math during the render phase
+  const processedRows = useMemo(() => {
+    return rows.map(row => {
+      let rowTotal = new BigNumber(0);
+      dateColumns.forEach(date => {
+        rowTotal = rowTotal.plus(new BigNumber(row[date] || 0));
+      });
+      const rowAverage = rowTotal.dividedBy(dateColumns.length || 1);
+      
+      return {
+        ...row,
+        computedTotal: rowTotal.toNumber(),
+        computedAverage: rowAverage.toNumber()
+      };
+    });
+  }, [rows, dateColumns]);
 
   const fetchCategoryTotals = async () => {
+    const params = new URLSearchParams({
+      startMonth: startDate.format('YYYY-MM'),
+      endMonth: endDate.format('YYYY-MM'),
+    }).toString();
+
     try {
-      // handleLoading(true);
-      console.log(getParams());
-      const data = await getCategoryTotals(getParams());
-      console.log(data);
-      setRows(data.results);
+      const data = await getCategoryTotals(params);
+      setRows(data.results || []);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
-        // user needs to login
         logout();
       } else {
-        // other error
-        throw error;
+        setMessage({ type: 'error', text: 'Failed to fetch data' });
+        console.error(error);
       }
-    } finally {
-      // handleLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCategoryTotals();
   }, [startDate, endDate]);
-
-  // get year-months from the data for the column headers
-  const dateColumns = useMemo(() => {
-    console.log('date columns');
-    if (rows.length === 0) return []; // no data
-
-    // Get keys that match the YYYY-MM format
-    const keys = Object.keys(rows[0])
-      .filter((key) => /^\d{4}-\d{2}$/.test(key))
-      .sort(); // Ensure dates are in chronological order
-
-    console.log(keys);
-    return keys;
-  }, [rows]);
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -113,102 +113,65 @@ export default function CategorySpendingView() {
         </LocalizationProvider>
       </Stack>
 
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650, mb: 2, mt: 2 }} size="small" aria-label="">
+      <TableContainer component={Paper} sx={{ border: '0.5px solid rgba(224,224,224,1)' }}>
+        <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell
-                sx={{
-                  // width: 300,
-                  minWidth: 250,
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 3, // Higher than header and body sticky cells
-                  backgroundColor: 'background.paper',
-                }}
-              >Category</TableCell>
-              {dateColumns.map((date) => (
-                <TableCell key={date} align="right" sx={{ width: 120, minWidth: 120 }}>
-                  {date}
-                </TableCell>
+              <TableCell sx={{ 
+                minWidth: 250,
+                position: 'sticky', 
+                left: 0, 
+                zIndex: 3, 
+                bgcolor: 'background.paper',
+                borderRight: '1px solid rgba(224, 224, 224, 1)',
+              }}>
+                Category
+              </TableCell>
+              {dateColumns.map(date => (
+                <TableCell key={date} align="right" sx={{ minWidth: 120 }}>{date}</TableCell>
               ))}
               <TableCell align="right" sx={{ minWidth: 150 }}>Total</TableCell>
               <TableCell align="right" sx={{ minWidth: 120 }}>Average</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row, index) => {
-              // console.log(row);
+            {processedRows.map((row, index) => (
+              <TableRow key={row.full_name || index} sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'inherit' }}>
+                <TableCell
+                  sx={{ 
+                    position: 'sticky', 
+                    left: 0, 
+                    bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50',
+                    pl: `${row.depth * 20}px`,
+                    fontWeight: row.depth === 1 ? 600 : 400,
+                    borderRight: '1px solid rgba(224, 224, 224, 1)',
+                  }}
+                >
+                  {row.name}
+                </TableCell>
 
-              // 1. Initialize BigNumber for calculations
-              let rowTotal = new BigNumber(0);
-
-              // 2. Sum up the months
-              dateColumns.forEach(date => {
-                const val = new BigNumber(row[date] || 0);
-                rowTotal = rowTotal.plus(val);
-              });
-
-              // 3. Calculate average
-              const rowAverage = rowTotal.dividedBy(dateColumns.length || 1);
-
-              return (
-                <TableRow key={row.full_name || index} sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'white' }}>
-                  <TableCell
-                    sx={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3, // Higher than header and body sticky cells
-                      bgcolor: row.depth === 1 ? 'grey.200' : 'white',
-                    }}
-                    style={{
-                      paddingLeft: `${row.depth * 20}px`,
-                      fontWeight: row.depth === 1 ? 600 : 400
-                    }}
-                  >
-                    {row.name}
-                  </TableCell>
-
-                  {/* Monthly Data Cells */}
-                  {dateColumns.map((date) => (
+                {dateColumns.map(date => {
+                  const val = new BigNumber(row[date] || 0);
+                  return (
                     <TableCell key={date} align="right">
-                      {row[date] !== null ? (
-                        // <Tooltip title={`Drill down: ${row.name} (${date})`} arrow>
-                        //   <Link
-                        //     component="button"
-                        //     variant="body2"
-                        //     sx={{
-                        //       fontFamily: 'monospace',
-                        //       // Use BigNumber for the conditional color check
-                        //       color: new BigNumber(row[date]).isNegative() ? 'error.main' : 'primary.main'
-                        //     }}
-                        //   >
-                        //     {new BigNumber(row[date]).toFixed(2)}
-                        //   </Link>
-                        // </Tooltip>
-                        <Typography variant="body2" sx={{ color: new BigNumber(row[date] || 0).isNegative() ? 'red' : 'black' }}>{currencyFormat(new BigNumber(row[date] || 0).toNumber())}</Typography>
-                      ) : (
-                        <Typography variant="body2" sx={{ color: 'green' }}> </Typography>
-                      )}
+                      <Typography variant="body2" sx={{ color: val.isNegative() ? 'error.main' : 'text.primary' }}>
+                        {currencyFormat(val.toNumber())}
+                      </Typography>
                     </TableCell>
-                  ))}
+                  );
+                })}
 
-                  {/* Total Column - Formatted to 2 decimal places */}
-                  <TableCell align="right" sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50', fontWeight: 'bold', }}>
-                    {currencyFormat(rowTotal.toNumber())}
-                  </TableCell>
-
-                  {/* Average Column - Formatted to 2 decimal places */}
-                  <TableCell align="right" sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50', fontStyle: 'italic', }}>
-                    {currencyFormat(rowAverage.toNumber())}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                <TableCell align="right" sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50', fontWeight: 'bold' }}>
+                  {currencyFormat(row.computedTotal)}
+                </TableCell>
+                <TableCell align="right" sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50', fontStyle: 'italic' }}>
+                  {currencyFormat(row.computedAverage)}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
     </Box>
   );
 }
-
