@@ -55,7 +55,6 @@ const router = createBrowserRouter([
           { path: "transactions", element: <TransactionsView /> },
           { path: "categories", element: <CategoryView /> },
           { path: "upload", element: <StatementUploadView /> },
-          { path: "spending", element: <MonthlySpendingView /> },
           { path: "category_spending", element: <CategorySpendingView /> },
         ],
       },
