@@ -77,6 +77,7 @@ export default function TransactionView() {
   // State for our custom filters
   const [filters, setFilters] = useState({
     account: '',
+    category: '',
     startDate: '',
     endDate: '',
   });
@@ -164,6 +165,7 @@ export default function TransactionView() {
       limit: pageSize.toString(),
       offset: (page * pageSize).toString(),
       ...(filters.account && { account: filters.account }),
+      ...(filters.category && { category: filters.category }),
       ...(filters.startDate && { startDate: filters.startDate }),
       ...(filters.endDate && { endDate: filters.endDate }),
     });
@@ -314,6 +316,7 @@ export default function TransactionView() {
           label="Account"
           size="small"
           value={filters.account}
+          slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate({ account: e.target.value })}
           sx={{ width: 220 }}
         >
@@ -324,10 +327,25 @@ export default function TransactionView() {
         </TextField>
 
         <TextField
+          select
+          label="Category"
+          size="small"
+          value={filters.category}
+          slotProps={{ inputLabel: { shrink: true } }}
+          onChange={(e) => handleFilterUpdate({ category: e.target.value })}
+          sx={{ width: 220 }}
+        >
+          <MenuItem value="">All Categories</MenuItem>
+          {categories.map(cat => (
+            <MenuItem key={cat.uuid} value={cat.uuid}>{cat.full_name}</MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
           type="date"
           label="Start Date"
           size="small"
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate({ startDate: e.target.value })}
         />
 
@@ -335,7 +353,7 @@ export default function TransactionView() {
           type="date"
           label="End Date"
           size="small"
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate({ endDate: e.target.value })}
         />
       </Stack>
