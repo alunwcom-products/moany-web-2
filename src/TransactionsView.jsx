@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
@@ -61,31 +62,58 @@ export default function TransactionView() {
   const { logout } = useAuth();
   const { setMessage } = useMessaging();
 
-  // State for data and loading
+  // state for data and loading
   const [rows, setRows] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // State for pagination (MUI default format)
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 10,
-  });
+  // search params for uel 'state'
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // State for our custom filters
-  const [filters, setFilters] = useState({
-    account: '',
-    category: '',
-    startDate: '',
-    endDate: '',
-  });
+  const paginationModel = {
+    page: Math.max(0, parseInt(searchParams.get('page') || '1') - 1), // convert starting point from 1 to 0
+    pageSize: parseInt(searchParams.get('pageSize') || '10'),
+  };
 
-  const handleFilterUpdate = (obj) => {
-    // reset page when updating the filters
-    setPaginationModel(value => ({ ...value, page: 0 }));
-    setFilters((value) => ({ ...value, ...obj }));
+  const handlePaginationChange = (newModel) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    newParams.set('page', (newModel.page + 1).toString()); // convert starting point from 0 to 1
+    newParams.set('pageSize', newModel.pageSize.toString());
+    
+    setSearchParams(newParams);
+  };
+
+  // 1. Pull all values from the URL
+  const filters = {
+    account: searchParams.getAll('account'),
+    category: searchParams.getAll('category'),
+    startDate: searchParams.get('startDate') || '',
+    endDate: searchParams.get('endDate') || '',
+  };
+
+  const handleFilterUpdate = (key, value) => {
+
+    const newParams = new URLSearchParams(searchParams);
+
+    // Reset page to 1 whenever a filter is changed
+    newParams.set('page', '1');
+
+    if (Array.isArray(value)) {
+      // Handle Multi-selects (Accounts/Categories)
+      newParams.delete(key);
+      value.forEach(item => newParams.append(key, item));
+    } else if (value) {
+      // Handle single values (Dates)
+      newParams.set(key, value);
+    } else {
+      // Clean up the URL if the filter is cleared
+      newParams.delete(key);
+    }
+
+    setSearchParams(newParams);
   };
 
   // dialog
@@ -171,9 +199,10 @@ export default function TransactionView() {
     });
 
     try {
+      console.log(params.toString());
       const response = await getTransactions(params.toString(), abortController);
-      setRows(response.results);
-      setRowCount(response.totalCount);
+      setRows(response.results || []);
+      setRowCount(response.totalCount || 0);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         logout();
@@ -183,7 +212,7 @@ export default function TransactionView() {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel, filters, logout, setMessage]); // Depend on state that affects the query
+  }, [searchParams, logout, setMessage]); // Depend on state that affects the query
 
   // Main Effect: Re-run whenever pagination or filters change
   useEffect(() => {
@@ -317,7 +346,7 @@ export default function TransactionView() {
           size="small"
           value={filters.account}
           slotProps={{ inputLabel: { shrink: true } }}
-          onChange={(e) => handleFilterUpdate({ account: e.target.value })}
+          onChange={(e) => handleFilterUpdate('account', e.target.value)}
           sx={{ width: 220 }}
         >
           <MenuItem value="">All Accounts</MenuItem>
@@ -332,7 +361,7 @@ export default function TransactionView() {
           size="small"
           value={filters.category}
           slotProps={{ inputLabel: { shrink: true } }}
-          onChange={(e) => handleFilterUpdate({ category: e.target.value })}
+          onChange={(e) => handleFilterUpdate('category', e.target.value )}
           sx={{ width: 220 }}
         >
           <MenuItem value="">All Categories</MenuItem>
@@ -345,16 +374,18 @@ export default function TransactionView() {
           type="date"
           label="Start Date"
           size="small"
+          value={filters.startDate}
           slotProps={{ inputLabel: { shrink: true } }}
-          onChange={(e) => handleFilterUpdate({ startDate: e.target.value })}
+          onChange={(e) => handleFilterUpdate('startDate', e.target.value)}
         />
 
         <TextField
           type="date"
           label="End Date"
           size="small"
+          value={filters.endDate}
           slotProps={{ inputLabel: { shrink: true } }}
-          onChange={(e) => handleFilterUpdate({ endDate: e.target.value })}
+          onChange={(e) => handleFilterUpdate('endDate', e.target.value)}
         />
       </Stack>
 
@@ -383,7 +414,7 @@ export default function TransactionView() {
         disableColumnFilter
         //sortingMode="server"
         paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
+        onPaginationModelChange={handlePaginationChange}
         pageSizeOptions={[10, 25, 50]}
         //sortModel={sortModel}
         //onSortModelChange={(newModel) => setSortModel(newModel)}
