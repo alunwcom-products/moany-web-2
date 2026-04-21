@@ -1,5 +1,6 @@
-import { Box, Card, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, Link } from "@mui/material";
-import { useEffect, useMemo, useState } from 'react';
+import { Box, Card, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, Link as MuiLink } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from './hooks/AuthContext.js';
 import { useMessaging } from './hooks/MessagingContext.js';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,7 +9,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button } from '@mui/material';
 import { getCategoryTotals, UnauthorizedError } from "./data/api.js";
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import BigNumber from 'bignumber.js';
+
+dayjs.extend(utc); // add dayjs utc plugin
 
 const currencyFormatter = new Intl.NumberFormat('en-GB', {
   style: 'currency',
@@ -42,7 +46,7 @@ export default function CategorySpendingView() {
         rowTotal = rowTotal.plus(new BigNumber(row[date] || 0));
       });
       const rowAverage = rowTotal.dividedBy(dateColumns.length || 1);
-      
+
       return {
         ...row,
         computedTotal: rowTotal.toNumber(),
@@ -50,6 +54,15 @@ export default function CategorySpendingView() {
       };
     });
   }, [rows, dateColumns]);
+
+  // generate transaction view url for given category/yearmonth
+  const getUrl = useCallback((category, yearmonth) => {
+    console.log(`${category} -> ${yearmonth}`);
+    // get start date and end date from yearmonth
+    const startDate = dayjs.utc(yearmonth).startOf('month').format('YYYY-MM-DD');
+    const endDate = dayjs.utc(yearmonth).endOf('month').format('YYYY-MM-DD');
+    return `/transactions?page=1&category=${category}&startDate=${startDate}&endDate=${endDate}`;
+  }, []);
 
   const fetchCategoryTotals = async () => {
     const params = new URLSearchParams({
@@ -79,10 +92,7 @@ export default function CategorySpendingView() {
       <Typography variant="h6" gutterBottom >Category Spending</Typography>
 
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          {/* <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 4 }}> */}
-
           <DatePicker
             label="Start Month"
             value={startDate}
@@ -117,11 +127,11 @@ export default function CategorySpendingView() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ 
+              <TableCell sx={{
                 minWidth: 250,
-                position: 'sticky', 
-                left: 0, 
-                zIndex: 3, 
+                position: 'sticky',
+                left: 0,
+                zIndex: 3,
                 bgcolor: 'background.paper',
                 borderRight: '1px solid rgba(224, 224, 224, 1)',
               }}>
@@ -138,9 +148,9 @@ export default function CategorySpendingView() {
             {processedRows.map((row, index) => (
               <TableRow key={row.full_name || index} sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'inherit' }}>
                 <TableCell
-                  sx={{ 
-                    position: 'sticky', 
-                    left: 0, 
+                  sx={{
+                    position: 'sticky',
+                    left: 0,
                     bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50',
                     pl: `${row.depth * 20}px`,
                     fontWeight: row.depth === 1 ? 600 : 400,
@@ -155,7 +165,23 @@ export default function CategorySpendingView() {
                   return (
                     <TableCell key={date} align="right">
                       <Typography variant="body2" sx={{ color: val.isNegative() ? 'error.main' : 'text.primary' }}>
-                        {currencyFormat(val.toNumber())}
+                        {(row[date]) ?
+                          <MuiLink
+                            component={RouterLink}
+                            to={getUrl(row.uuid, date)}
+                            variant="body2"
+                            sx={{
+                              textDecoration: 'none',
+                              color: val.isNegative() ? 'error.main' : 'text.primary',
+                              '&:hover': {
+                                textDecoration: 'underline', // Hover state: show underline
+                                color: val.isNegative() ? 'error.main' : 'text.primary', // Keep color consistent
+                              },
+                            }}
+                          >
+                            {currencyFormat(val.toNumber())}
+                          </MuiLink>
+                          : ''}
                       </Typography>
                     </TableCell>
                   );
