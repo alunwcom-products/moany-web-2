@@ -11,6 +11,7 @@ import { getCategoryTotals, UnauthorizedError } from "./data/api.js";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import BigNumber from 'bignumber.js';
+import { useSearchParams } from "react-router";
 
 dayjs.extend(utc); // add dayjs utc plugin
 
@@ -26,8 +27,28 @@ export default function CategorySpendingView() {
   const { setMessage } = useMessaging();
 
   const [rows, setRows] = useState([]);
-  const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month'));
-  const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month'));
+  // const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month'));
+  // const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month'));
+
+  // search params for url 'state'
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters = {
+    startDate: searchParams.get('startDate') || dayjs.utc().subtract(6, 'month').format('YYYY-MM'),
+    endDate: searchParams.get('endDate') || dayjs.utc().subtract(1, 'month').format('YYYY-MM'),
+  };
+
+  const handleFilterUpdate = (key, value) => {
+    const newParams = new URLSearchParams(searchParams);
+    // Reset page to 1 whenever a filter is changed
+    // newParams.set('page', '1');
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    setSearchParams(newParams);
+  };
 
   // 1. Memoized Column Extraction
   const dateColumns = useMemo(() => {
@@ -66,8 +87,8 @@ export default function CategorySpendingView() {
 
   const fetchCategoryTotals = async () => {
     const params = new URLSearchParams({
-      startMonth: startDate.format('YYYY-MM'),
-      endMonth: endDate.format('YYYY-MM'),
+      startMonth: dayjs.utc(filters.startDate).format('YYYY-MM'),
+      endMonth: dayjs.utc(filters.endDate).format('YYYY-MM'),
     }).toString();
 
     try {
@@ -85,7 +106,7 @@ export default function CategorySpendingView() {
 
   useEffect(() => {
     fetchCategoryTotals();
-  }, [startDate, endDate]);
+  }, []);
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -95,8 +116,8 @@ export default function CategorySpendingView() {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Start Month"
-            value={startDate}
-            onChange={(newValue) => setStartDate(newValue)}
+            value={dayjs.utc(filters.startDate)}
+            onChange={(newValue) => handleFilterUpdate('startDate', dayjs.utc(newValue).format('YYYY-MM'))}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{
@@ -109,8 +130,8 @@ export default function CategorySpendingView() {
 
           <DatePicker
             label="End Month"
-            value={endDate}
-            onChange={(newValue) => setEndDate(newValue)}
+            value={dayjs.utc(filters.endDate)}
+            onChange={(newValue) => handleFilterUpdate('endDate', dayjs.utc(newValue).format('YYYY-MM'))}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{

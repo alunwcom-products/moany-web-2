@@ -1,5 +1,4 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
@@ -8,6 +7,7 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
 import lodash from 'lodash';
+import { useSearchParams } from 'react-router';
 
 const INITIAL_FORM_STATE = {
   account: '',
@@ -69,7 +69,7 @@ export default function TransactionView() {
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // search params for uel 'state'
+  // search params for url 'state'
   const [searchParams, setSearchParams] = useSearchParams();
 
   const paginationModel = {
