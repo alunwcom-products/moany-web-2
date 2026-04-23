@@ -27,21 +27,19 @@ export default function CategorySpendingView() {
   const { setMessage } = useMessaging();
 
   const [rows, setRows] = useState([]);
-  // const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month'));
-  // const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month'));
 
   // search params for url 'state'
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const filters = {
-    startDate: searchParams.get('startDate') || dayjs.utc().subtract(6, 'month').format('YYYY-MM'),
-    endDate: searchParams.get('endDate') || dayjs.utc().subtract(1, 'month').format('YYYY-MM'),
-  };
+  const start = searchParams.get('startMonth') || dayjs.utc().subtract(6, 'month').format('YYYY-MM');
+  const end = searchParams.get('endMonth') || dayjs.utc().subtract(1, 'month').format('YYYY-MM');
+  const params = new URLSearchParams({
+    startMonth: start,
+    endMonth: end,
+  }).toString();
 
   const handleFilterUpdate = (key, value) => {
     const newParams = new URLSearchParams(searchParams);
-    // Reset page to 1 whenever a filter is changed
-    // newParams.set('page', '1');
     if (value) {
       newParams.set(key, value);
     } else {
@@ -78,7 +76,6 @@ export default function CategorySpendingView() {
 
   // generate transaction view url for given category/yearmonth
   const getUrl = useCallback((category, yearmonth) => {
-    console.log(`${category} -> ${yearmonth}`);
     // get start date and end date from yearmonth
     const startDate = dayjs.utc(yearmonth).startOf('month').format('YYYY-MM-DD');
     const endDate = dayjs.utc(yearmonth).endOf('month').format('YYYY-MM-DD');
@@ -86,11 +83,6 @@ export default function CategorySpendingView() {
   }, []);
 
   const fetchCategoryTotals = async () => {
-    const params = new URLSearchParams({
-      startMonth: dayjs.utc(filters.startDate).format('YYYY-MM'),
-      endMonth: dayjs.utc(filters.endDate).format('YYYY-MM'),
-    }).toString();
-
     try {
       const data = await getCategoryTotals(params);
       setRows(data.results || []);
@@ -106,7 +98,7 @@ export default function CategorySpendingView() {
 
   useEffect(() => {
     fetchCategoryTotals();
-  }, []);
+  }, [searchParams]);
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -116,8 +108,12 @@ export default function CategorySpendingView() {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Start Month"
-            value={dayjs.utc(filters.startDate)}
-            onChange={(newValue) => handleFilterUpdate('startDate', dayjs.utc(newValue).format('YYYY-MM'))}
+            value={dayjs.utc(start)}
+            onChange={(newValue) => {
+              if (newValue) {
+                handleFilterUpdate('startMonth', dayjs.utc(newValue).format('YYYY-MM'))
+              }
+            }}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{
@@ -130,8 +126,12 @@ export default function CategorySpendingView() {
 
           <DatePicker
             label="End Month"
-            value={dayjs.utc(filters.endDate)}
-            onChange={(newValue) => handleFilterUpdate('endDate', dayjs.utc(newValue).format('YYYY-MM'))}
+            value={dayjs.utc(end)}
+            onChange={(newValue) => {
+              if (newValue) {
+                handleFilterUpdate('endMonth', dayjs.utc(newValue).format('YYYY-MM'))
+              }
+            }}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{
@@ -144,7 +144,7 @@ export default function CategorySpendingView() {
         </LocalizationProvider>
       </Stack>
 
-      <TableContainer component={Paper} sx={{ border: '0.5px solid rgba(224,224,224,1)' }}>
+      <TableContainer component={Paper} sx={{ border: '0.5px solid rgba(224,224,224,1)', pb: 2 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
