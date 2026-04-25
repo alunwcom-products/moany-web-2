@@ -1,5 +1,6 @@
-import { Box, Card, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, Link } from "@mui/material";
-import { useEffect, useMemo, useState } from 'react';
+import { Box, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Link as MuiLink } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from './hooks/AuthContext.js';
 import { useMessaging } from './hooks/MessagingContext.js';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,7 +9,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button } from '@mui/material';
 import { getCategoryTotals, UnauthorizedError } from "./data/api.js";
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import BigNumber from 'bignumber.js';
+import { useSearchParams } from "react-router";
+
+dayjs.extend(utc); // add dayjs utc plugin
 
 const currencyFormatter = new Intl.NumberFormat('en-GB', {
   style: 'currency',
@@ -22,8 +27,26 @@ export default function CategorySpendingView() {
   const { setMessage } = useMessaging();
 
   const [rows, setRows] = useState([]);
-  const [startDate, setStartDate] = useState(dayjs().subtract(6, 'month'));
-  const [endDate, setEndDate] = useState(dayjs().subtract(1, 'month'));
+
+  // search params for url 'state'
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const start = searchParams.get('startMonth') || dayjs.utc().subtract(6, 'month').format('YYYY-MM');
+  const end = searchParams.get('endMonth') || dayjs.utc().subtract(1, 'month').format('YYYY-MM');
+  const params = new URLSearchParams({
+    startMonth: start,
+    endMonth: end,
+  }).toString();
+
+  const handleFilterUpdate = (key, value) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    setSearchParams(newParams);
+  };
 
   // 1. Memoized Column Extraction
   const dateColumns = useMemo(() => {
@@ -42,7 +65,7 @@ export default function CategorySpendingView() {
         rowTotal = rowTotal.plus(new BigNumber(row[date] || 0));
       });
       const rowAverage = rowTotal.dividedBy(dateColumns.length || 1);
-      
+
       return {
         ...row,
         computedTotal: rowTotal.toNumber(),
@@ -51,12 +74,15 @@ export default function CategorySpendingView() {
     });
   }, [rows, dateColumns]);
 
-  const fetchCategoryTotals = async () => {
-    const params = new URLSearchParams({
-      startMonth: startDate.format('YYYY-MM'),
-      endMonth: endDate.format('YYYY-MM'),
-    }).toString();
+  // generate transaction view url for given category/yearmonth
+  const getUrl = useCallback((category, yearmonth) => {
+    // get start date and end date from yearmonth
+    const startDate = dayjs.utc(yearmonth).startOf('month').format('YYYY-MM-DD');
+    const endDate = dayjs.utc(yearmonth).endOf('month').format('YYYY-MM-DD');
+    return `/transactions?page=1&category=${category}&childCats=true&startDate=${startDate}&endDate=${endDate}`;
+  }, []);
 
+  const fetchCategoryTotals = async () => {
     try {
       const data = await getCategoryTotals(params);
       setRows(data.results || []);
@@ -72,21 +98,22 @@ export default function CategorySpendingView() {
 
   useEffect(() => {
     fetchCategoryTotals();
-  }, [startDate, endDate]);
+  }, [searchParams]);
 
   return (
     <Box style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" gutterBottom >Category Spending</Typography>
 
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          {/* <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 4 }}> */}
-
           <DatePicker
             label="Start Month"
-            value={startDate}
-            onChange={(newValue) => setStartDate(newValue)}
+            value={dayjs.utc(start)}
+            onChange={(newValue) => {
+              if (newValue) {
+                handleFilterUpdate('startMonth', dayjs.utc(newValue).format('YYYY-MM'))
+              }
+            }}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{
@@ -99,8 +126,12 @@ export default function CategorySpendingView() {
 
           <DatePicker
             label="End Month"
-            value={endDate}
-            onChange={(newValue) => setEndDate(newValue)}
+            value={dayjs.utc(end)}
+            onChange={(newValue) => {
+              if (newValue) {
+                handleFilterUpdate('endMonth', dayjs.utc(newValue).format('YYYY-MM'))
+              }
+            }}
             views={['year', 'month']}
             format="MMMM YYYY"
             slotProps={{
@@ -113,15 +144,15 @@ export default function CategorySpendingView() {
         </LocalizationProvider>
       </Stack>
 
-      <TableContainer component={Paper} sx={{ border: '0.5px solid rgba(224,224,224,1)' }}>
+      <TableContainer component={Paper} sx={{ border: '0.5px solid rgba(224,224,224,1)', pb: 2 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ 
+              <TableCell sx={{
                 minWidth: 250,
-                position: 'sticky', 
-                left: 0, 
-                zIndex: 3, 
+                position: 'sticky',
+                left: 0,
+                zIndex: 3,
                 bgcolor: 'background.paper',
                 borderRight: '1px solid rgba(224, 224, 224, 1)',
               }}>
@@ -138,9 +169,9 @@ export default function CategorySpendingView() {
             {processedRows.map((row, index) => (
               <TableRow key={row.full_name || index} sx={{ bgcolor: row.depth === 1 ? 'grey.200' : 'inherit' }}>
                 <TableCell
-                  sx={{ 
-                    position: 'sticky', 
-                    left: 0, 
+                  sx={{
+                    position: 'sticky',
+                    left: 0,
                     bgcolor: row.depth === 1 ? 'grey.200' : 'grey.50',
                     pl: `${row.depth * 20}px`,
                     fontWeight: row.depth === 1 ? 600 : 400,
@@ -155,7 +186,23 @@ export default function CategorySpendingView() {
                   return (
                     <TableCell key={date} align="right">
                       <Typography variant="body2" sx={{ color: val.isNegative() ? 'error.main' : 'text.primary' }}>
-                        {currencyFormat(val.toNumber())}
+                        {(row[date]) ?
+                          <MuiLink
+                            component={RouterLink}
+                            to={getUrl(row.uuid, date)}
+                            variant="body2"
+                            sx={{
+                              textDecoration: 'none',
+                              color: val.isNegative() ? 'error.main' : 'text.primary',
+                              '&:hover': {
+                                textDecoration: 'underline', // Hover state: show underline
+                                color: val.isNegative() ? 'error.main' : 'text.primary', // Keep color consistent
+                              },
+                            }}
+                          >
+                            {currencyFormat(val.toNumber())}
+                          </MuiLink>
+                          : ''}
                       </Typography>
                     </TableCell>
                   );

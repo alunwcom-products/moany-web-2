@@ -1,13 +1,13 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
-import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Chip, FormControlLabel, Checkbox } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
 import AddIcon from '@mui/icons-material/Add';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
 import lodash from 'lodash';
+import { useSearchParams } from 'react-router';
 
 const INITIAL_FORM_STATE = {
   account: '',
@@ -27,7 +27,6 @@ const initialState = {
       statement_amount: false,
       statement_balance: false,
       type: false,
-      comment: false,
       source_type: false,
       source_name: false,
       source_row: false,
@@ -69,7 +68,7 @@ export default function TransactionView() {
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // search params for uel 'state'
+  // search params for url 'state'
   const [searchParams, setSearchParams] = useSearchParams();
 
   const paginationModel = {
@@ -79,10 +78,10 @@ export default function TransactionView() {
 
   const handlePaginationChange = (newModel) => {
     const newParams = new URLSearchParams(searchParams);
-    
+
     newParams.set('page', (newModel.page + 1).toString()); // convert starting point from 0 to 1
     newParams.set('pageSize', newModel.pageSize.toString());
-    
+
     setSearchParams(newParams);
   };
 
@@ -90,14 +89,14 @@ export default function TransactionView() {
   const filters = {
     account: searchParams.getAll('account'),
     category: searchParams.getAll('category'),
+    childCats: searchParams.getAll('childCats'),
     startDate: searchParams.get('startDate') || '',
     endDate: searchParams.get('endDate') || '',
   };
 
   const handleFilterUpdate = (key, value) => {
-
+    console.log(`filter update: ${key} -> ${value}`);
     const newParams = new URLSearchParams(searchParams);
-
     // Reset page to 1 whenever a filter is changed
     newParams.set('page', '1');
 
@@ -112,7 +111,6 @@ export default function TransactionView() {
       // Clean up the URL if the filter is cleared
       newParams.delete(key);
     }
-
     setSearchParams(newParams);
   };
 
@@ -189,14 +187,26 @@ export default function TransactionView() {
     setLoading(true);
     const { page, pageSize } = paginationModel;
 
+    if (Array.isArray(filters.category)) {
+      console.log('category array');
+      const cats = filters.category.map((cat) => `category=${cat}`);
+      console.log(cats.join('&'));
+    } else {
+      console.log('single or no category');
+    }
+
     const params = new URLSearchParams({
       limit: pageSize.toString(),
       offset: (page * pageSize).toString(),
       ...(filters.account && { account: filters.account }),
-      ...(filters.category && { category: filters.category }),
+      ...(filters.childCats && { childCats: filters.childCats }),
       ...(filters.startDate && { startDate: filters.startDate }),
       ...(filters.endDate && { endDate: filters.endDate }),
     });
+
+    if (Array.isArray(filters.category)) {
+      filters.category.forEach(cat => params.append('category', cat));
+    }
 
     try {
       console.log(params.toString());
@@ -292,7 +302,7 @@ export default function TransactionView() {
     },
     { field: 'entry_date', headerName: 'Entry Date', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
     {
-      field: 'account', headerName: 'Account', width: 230, editable: true, type: 'singleSelect',
+      field: 'account', headerName: 'Account', width: 220, editable: true, type: 'singleSelect',
       valueOptions: accounts.map((acc) => ({
         value: acc.uuid,
         label: acc.name,
@@ -314,14 +324,14 @@ export default function TransactionView() {
     { field: 'description', headerName: 'Description', flex: 1, minWidth: 320, editable: true },
     { field: 'comment', headerName: 'Comment', flex: 1, minWidth: 200, editable: true },
     {
-      field: 'net_amount', headerName: 'Amount', width: 140,
+      field: 'net_amount', headerName: 'Amount', width: 120,
       type: 'number', editable: true, valueFormatter: currencyFormat,
     },
     { field: 'statement_amount', headerName: 'Stmt. Amount', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     { field: 'account_balance', headerName: 'Account Balance', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     { field: 'statement_balance', headerName: 'Statement Balance', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     {
-      field: 'category', headerName: 'Category', flex: 1, minWidth: 290, type: 'singleSelect', editable: true,
+      field: 'category', headerName: 'Category', flex: 1, minWidth: 280, type: 'singleSelect', editable: true,
       valueOptions: categories.map((cat) => ({
         value: cat.uuid,
         label: cat.full_name,
@@ -347,7 +357,7 @@ export default function TransactionView() {
           value={filters.account}
           slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate('account', e.target.value)}
-          sx={{ width: 220 }}
+          sx={{ minWidth: 250 }}
         >
           <MenuItem value="">All Accounts</MenuItem>
           {accounts.map(acc => (
@@ -360,11 +370,17 @@ export default function TransactionView() {
           label="Category"
           size="small"
           value={filters.category}
-          slotProps={{ inputLabel: { shrink: true } }}
-          onChange={(e) => handleFilterUpdate('category', e.target.value )}
-          sx={{ width: 220 }}
+          slotProps={{
+            inputLabel: { shrink: true },
+            select: {
+              multiple: true,
+              renderValue: (selected) => selected.length > 0 ? `${selected.length} Selected` : 'None'
+            }
+          }}
+          onChange={(e) => handleFilterUpdate('category', e.target.value)}
+          sx={{ minWidth: 300 }}
         >
-          <MenuItem value="">All Categories</MenuItem>
+          {/* <MenuItem value="">All Categories</MenuItem> */}
           {categories.map(cat => (
             <MenuItem key={cat.uuid} value={cat.uuid}>{cat.full_name}</MenuItem>
           ))}
@@ -387,7 +403,36 @@ export default function TransactionView() {
           slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate('endDate', e.target.value)}
         />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filters.childCats[0] === 'true'}
+              onChange={(e) => handleFilterUpdate('childCats', e.target.checked)}
+              size="small"
+            />
+          }
+          label="Include Child Categories"
+        />
       </Stack>
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1, mb: 2 }}>
+        {filters.category.map((value) => {
+          const category = categories.find((c) => c.uuid === value);
+          return (
+            <Chip
+              key={value}
+              label={category?.full_name || value}
+              size="small"
+              onDelete={() => {
+                // 3. Optional: Allow users to remove categories by clicking the 'X'
+                const newValue = filters.category.filter((id) => id !== value);
+                handleFilterUpdate('category', newValue);
+              }}
+            />
+          );
+        })}
+      </Box>
 
       <DataGrid
         rows={rows}
