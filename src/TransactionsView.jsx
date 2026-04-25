@@ -189,7 +189,7 @@ export default function TransactionView() {
 
     if (Array.isArray(filters.category)) {
       console.log('category array');
-      const cats = filters.category.map((cat) => `category=${cat}`)
+      const cats = filters.category.map((cat) => `category=${cat}`);
       console.log(cats.join('&'));
     } else {
       console.log('single or no category');
