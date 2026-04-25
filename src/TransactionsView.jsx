@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
-import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material';
+import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Chip, FormControlLabel, Checkbox } from '@mui/material';
 import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
 import AddIcon from '@mui/icons-material/Add';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
@@ -27,7 +27,6 @@ const initialState = {
       statement_amount: false,
       statement_balance: false,
       type: false,
-      comment: false,
       source_type: false,
       source_name: false,
       source_row: false,
@@ -90,15 +89,14 @@ export default function TransactionView() {
   const filters = {
     account: searchParams.getAll('account'),
     category: searchParams.getAll('category'),
+    childCats: searchParams.getAll('childCats'),
     startDate: searchParams.get('startDate') || '',
     endDate: searchParams.get('endDate') || '',
   };
 
   const handleFilterUpdate = (key, value) => {
-    console.log(`${key} -> ${value}`);
-
+    console.log(`filter update: ${key} -> ${value}`);
     const newParams = new URLSearchParams(searchParams);
-
     // Reset page to 1 whenever a filter is changed
     newParams.set('page', '1');
 
@@ -113,7 +111,6 @@ export default function TransactionView() {
       // Clean up the URL if the filter is cleared
       newParams.delete(key);
     }
-
     setSearchParams(newParams);
   };
 
@@ -202,7 +199,7 @@ export default function TransactionView() {
       limit: pageSize.toString(),
       offset: (page * pageSize).toString(),
       ...(filters.account && { account: filters.account }),
-      // ...(filters.category && { category: filters.category }),
+      ...(filters.childCats && { childCats: filters.childCats }),
       ...(filters.startDate && { startDate: filters.startDate }),
       ...(filters.endDate && { endDate: filters.endDate }),
     });
@@ -305,7 +302,7 @@ export default function TransactionView() {
     },
     { field: 'entry_date', headerName: 'Entry Date', width: 200, valueFormatter: isoDateFormat, cellClassName: 'ro' },
     {
-      field: 'account', headerName: 'Account', width: 230, editable: true, type: 'singleSelect',
+      field: 'account', headerName: 'Account', width: 220, editable: true, type: 'singleSelect',
       valueOptions: accounts.map((acc) => ({
         value: acc.uuid,
         label: acc.name,
@@ -327,14 +324,14 @@ export default function TransactionView() {
     { field: 'description', headerName: 'Description', flex: 1, minWidth: 320, editable: true },
     { field: 'comment', headerName: 'Comment', flex: 1, minWidth: 200, editable: true },
     {
-      field: 'net_amount', headerName: 'Amount', width: 140,
+      field: 'net_amount', headerName: 'Amount', width: 120,
       type: 'number', editable: true, valueFormatter: currencyFormat,
     },
     { field: 'statement_amount', headerName: 'Stmt. Amount', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     { field: 'account_balance', headerName: 'Account Balance', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     { field: 'statement_balance', headerName: 'Statement Balance', width: 140, type: 'number', valueFormatter: currencyFormat, cellClassName: 'ro', },
     {
-      field: 'category', headerName: 'Category', flex: 1, minWidth: 290, type: 'singleSelect', editable: true,
+      field: 'category', headerName: 'Category', flex: 1, minWidth: 280, type: 'singleSelect', editable: true,
       valueOptions: categories.map((cat) => ({
         value: cat.uuid,
         label: cat.full_name,
@@ -405,6 +402,17 @@ export default function TransactionView() {
           value={filters.endDate}
           slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => handleFilterUpdate('endDate', e.target.value)}
+        />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filters.childCats[0] === 'true'}
+              onChange={(e) => handleFilterUpdate('childCats', e.target.checked)}
+              size="small"
+            />
+          }
+          label="Include Child Categories"
         />
       </Stack>
 

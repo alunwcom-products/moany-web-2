@@ -79,7 +79,7 @@ export default function CategorySpendingView() {
     // get start date and end date from yearmonth
     const startDate = dayjs.utc(yearmonth).startOf('month').format('YYYY-MM-DD');
     const endDate = dayjs.utc(yearmonth).endOf('month').format('YYYY-MM-DD');
-    return `/transactions?page=1&category=${category}&startDate=${startDate}&endDate=${endDate}`;
+    return `/transactions?page=1&category=${category}&childCats=true&startDate=${startDate}&endDate=${endDate}`;
   }, []);
 
   const fetchCategoryTotals = async () => {
