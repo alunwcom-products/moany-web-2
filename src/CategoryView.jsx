@@ -9,7 +9,7 @@ import { useMessaging } from './hooks/MessagingContext';
 
 const INITIAL_FORM_STATE = {
   name: '',
-  parent_id: '5d4238f7-a6be-4b98-bec3-1d65b8dc46c8', // 'Account Transfers/Balances' as default parent
+  parent_id: '',
 };
 
 const initialState = {
@@ -51,6 +51,7 @@ export default function CategoryView() {
   // 2. Handle Form Submission
   const handleSubmit = async () => {
     try {
+      console.log(JSON.stringify(formData));
       await setCategory(formData);
       setMessage('Category created', 'success');
       await loadData();
