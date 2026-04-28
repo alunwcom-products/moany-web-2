@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { getCategories, setCategory, UnauthorizedError } from './data/api';
+import { getCategories, setCategory } from './data/api';
 import AddIcon from '@mui/icons-material/Add';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
@@ -67,20 +67,15 @@ export default function CategoryView() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const loadData = useCallback(async (abortController) => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     const loadData = async () => {
       try {
-        const response = await getCategories(abortController);
+        const response = await getCategories();
         setRows(response.results);
       } catch (error) {
-        if (error instanceof UnauthorizedError) {
-          // user needs to login
-          logout();
-        } else {
-          // other error
-          throw error;
-        }
+        setMessage(error?.message ? error.message : 'API Error');
+        logout();
       } finally {
         setLoading(false);
       }
@@ -89,8 +84,7 @@ export default function CategoryView() {
   }, [logout, setMessage]);
 
   useEffect(() => {
-    const abortController = new AbortController();
-    loadData(abortController);
+    loadData();
   }, []);
 
   const rowUpdate = async (updatedRow, originalRow) => {
@@ -100,14 +94,8 @@ export default function CategoryView() {
       setMessage('Row updated', 'success');
       return transaction;
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        setMessage('Save failed', 'error');
-        throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Box, Card, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
-import { getMonthlyTotals, UnauthorizedError } from './data/api.js';
+import { getMonthlyTotals } from './data/api.js';
 import { useAuth } from './hooks/AuthContext.js';
 import { useMessaging } from './hooks/MessagingContext.js';
 
@@ -20,13 +20,8 @@ export default function SummaryView() {
       const data = await getMonthlyTotals();
       setTotals(data.results);
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       // handleLoading(false);
     }

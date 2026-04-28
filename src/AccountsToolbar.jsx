@@ -18,7 +18,6 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { setAccount, UnauthorizedError } from './data/api';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
 
@@ -51,14 +50,8 @@ export default function AccountsToolbar({ handleLoading, setAccounts, accounts =
       setAccounts((prev) => [...prev, newAccount]);
       setMessage('Account created', 'success');
     } catch (error) {
-      setMessage('Save failed', 'error');
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       handleLoading(false);
       handleClose();

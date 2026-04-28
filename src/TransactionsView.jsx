@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect, useMemo } from 'react';
 import { ColumnsPanelTrigger, DataGrid, Toolbar, ToolbarButton } from '@mui/x-data-grid';
 import { TextField, MenuItem, Box, Stack, Typography, Button, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Chip, FormControlLabel, Checkbox } from '@mui/material';
-import { getAccountSummary, getCategories, getTransactions, setTransaction, UnauthorizedError } from './data/api';
+import { getAccountSummary, getCategories, getTransactions, setTransaction } from './data/api';
 import AddIcon from '@mui/icons-material/Add';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { useAuth } from './hooks/AuthContext';
@@ -75,6 +75,12 @@ export default function TransactionView() {
     page: Math.max(0, parseInt(searchParams.get('page') || '1') - 1), // convert starting point from 1 to 0
     pageSize: parseInt(searchParams.get('pageSize') || '10'),
   };
+
+  // handle API error
+  const apiError = (message) => {
+    setMessage(message ? message : 'API Error');
+    logout();
+  }
 
   const handlePaginationChange = (newModel) => {
     const newParams = new URLSearchParams(searchParams);
@@ -151,13 +157,7 @@ export default function TransactionView() {
         const accounts = await getAccountSummary();
         setAccounts(accounts.results);
       } catch (error) {
-        if (error instanceof UnauthorizedError) {
-          // user needs to login
-          logout();
-        } else {
-          // other error
-          throw error;
-        }
+        apiError(error.message);
       }
     };
     loadAccounts();
@@ -170,20 +170,14 @@ export default function TransactionView() {
         const categories = await getCategories();
         setCategories(categories.results);
       } catch (error) {
-        if (error instanceof UnauthorizedError) {
-          // user needs to login
-          logout();
-        } else {
-          // other error
-          throw error;
-        }
+        apiError(error.message);
       }
     };
     loadCategories();
   }, []);
 
   // cached function to reload data
-  const loadData = useCallback(async (abortController) => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     const { page, pageSize } = paginationModel;
 
@@ -210,24 +204,19 @@ export default function TransactionView() {
 
     try {
       console.log(params.toString());
-      const response = await getTransactions(params.toString(), abortController);
+      const response = await getTransactions(params.toString());
       setRows(response.results || []);
       setRowCount(response.totalCount || 0);
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        logout();
-      } else {
-        setMessage('Failed to load transactions', 'error');
-      }
+      apiError(error.message);
     } finally {
       setLoading(false);
     }
-  }, [searchParams, logout, setMessage]); // Depend on state that affects the query
+  }, [searchParams]); // Depend on state that affects the query
 
   // Main Effect: Re-run whenever pagination or filters change
   useEffect(() => {
-    const abortController = new AbortController();
-    loadData(abortController);
+    loadData();
   }, [loadData]);
 
   const rowUpdate = async (updatedRow, originalRow) => {
@@ -240,16 +229,16 @@ export default function TransactionView() {
     try {
       const transaction = await setTransaction(updatedRow);
       setMessage('Row updated', 'success');
+
+      // FIX: Update local state immediately so the grid doesn't feel "laggy"
+      // and doesn't rely on a full page reload to show the change.
+      setRows((prevRows) =>
+        prevRows.map((row) => (row.uuid === transaction.uuid ? transaction : row))
+      );
+
       return transaction;
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        setMessage('Save failed', 'error');
-        throw error;
-      }
+      apiError(error.message);
     }
   };
 

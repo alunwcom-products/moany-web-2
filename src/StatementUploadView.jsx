@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
 import { useMessaging } from "./hooks/MessagingContext";
-import { postStatement, UnauthorizedError } from "./data/api";
+import { postStatement } from "./data/api";
 
 export default function StatementUploadView() {
 
@@ -45,13 +45,8 @@ export default function StatementUploadView() {
       }
 
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     }
   };
 

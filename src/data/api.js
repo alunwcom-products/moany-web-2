@@ -1,7 +1,7 @@
 
 const BASE_URL = import.meta.env.VITE_API_ENDPOINT;
 
-class UnauthorizedError extends Error { };
+// class UnauthorizedError extends Error { };
 
 // basic content-type header required for most (but not all) API requests
 const JSON_HEADER = {
@@ -24,12 +24,6 @@ const apiClient = async (endpoint, options = {}) => {
     ...options,
   });
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new UnauthorizedError('401 Unauthorized');
-    }
-    if (response.status === 403) {
-      throw new UnauthorizedError('403 Forbidden');
-    }
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
   return response.json();
@@ -52,25 +46,22 @@ const getAccountSummary = () => apiClient('/accountSummary', JSON_HEADER);
 
 const getMonthlyTotals = () => apiClient('/monthly-totals', JSON_HEADER);
 
-const getCategoryTotals = (paramStr, abortController) =>
+const getCategoryTotals = (paramStr) =>
   apiClient('/category-totals', {
     ...JSON_HEADER,
     params: paramStr,
-    signal: abortController?.signal,
   });
 
-const getTransactions = (paramStr, abortController) =>
+const getTransactions = (paramStr) =>
   apiClient('/transactions', {
     ...JSON_HEADER,
     params: paramStr,
-    signal: abortController?.signal,
   });
 
-const getCategories = (abortController) =>
+const getCategories = () =>
   apiClient('/categories', {
     ...JSON_HEADER,
     //params: paramStr,
-    signal: abortController?.signal,
   });
 
 const setAccount = (account) =>
@@ -118,5 +109,5 @@ export {
   setCategory,
   setTransaction,
   postStatement,
-  UnauthorizedError,
+  // UnauthorizedError,
 }

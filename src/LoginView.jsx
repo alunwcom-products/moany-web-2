@@ -12,7 +12,7 @@ import {
   Stack 
 } from "@mui/material";
 import { useAuth } from './hooks/AuthContext';
-import { postSession, UnauthorizedError } from './data/api';
+import { postSession } from './data/api';
 import { useLocation, useNavigate } from 'react-router';
 import { useMessaging } from './hooks/MessagingContext';
 
@@ -74,11 +74,8 @@ export default function LoginView() {
         navigate(from, { replace: true });
       }
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        setMessage('Authentication failed', 'error');
-      } else {
-        setMessage('Server error', 'error');
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       setIsLoading(false);
     }

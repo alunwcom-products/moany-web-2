@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AuthContext } from './hooks/AuthContext';
-import { deleteSession, getSession, UnauthorizedError } from './data/api';
+import { deleteSession, getSession } from './data/api';
 import { useMessaging } from './hooks/MessagingContext';
 import { redirect, useLocation } from 'react-router';
 
@@ -23,9 +23,7 @@ export const AuthProvider = ({ children }) => {
       setMessage('Session refreshed', 'success');
     } catch (error) {
       setUserSession(null);
-      if (!(error instanceof UnauthorizedError)) {
-        setMessage('Server error', 'error');
-      }
+      setMessage(error?.message ? error.message : 'API Error');
     } finally {
       setIsLoading(false);
     }

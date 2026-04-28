@@ -7,7 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button } from '@mui/material';
-import { getCategoryTotals, UnauthorizedError } from "./data/api.js";
+import { getCategoryTotals } from "./data/api.js";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import BigNumber from 'bignumber.js';
@@ -87,12 +87,8 @@ export default function CategorySpendingView() {
       const data = await getCategoryTotals(params);
       setRows(data.results || []);
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        logout();
-      } else {
-        setMessage({ type: 'error', text: 'Failed to fetch data' });
-        console.error(error);
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     }
   };
 

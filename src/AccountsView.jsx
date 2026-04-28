@@ -4,7 +4,7 @@ import {
   DataGrid,
 } from '@mui/x-data-grid';
 import AccountsToolbar from './AccountsToolbar';
-import { getAccountSummary, setAccount, UnauthorizedError } from './data/api';
+import { getAccountSummary, setAccount } from './data/api';
 import { useMessaging } from './hooks/MessagingContext';
 import { useAuth } from './hooks/AuthContext';
 import { Box, Typography } from '@mui/material';
@@ -100,13 +100,8 @@ export default function AccountsView() {
       const data = await getAccountSummary();
       setAccounts(data.results);
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       handleLoading(false);
     }
@@ -123,15 +118,8 @@ export default function AccountsView() {
       setMessage('Row updated', 'success');
       return updatedRow;
     } catch (error) {
-      setMessage('Save failed', 'error');
-      if (error instanceof UnauthorizedError) {
-        // user needs to login
-        logout();
-      } else {
-        // other error
-        return originalRow;
-        // throw error;
-      }
+      setMessage(error?.message ? error.message : 'API Error');
+      logout();
     } finally {
       handleLoading(false);
     }
