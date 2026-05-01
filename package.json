@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
-    "@mui/x-charts": "^9.0.2",
+    "@mui/x-charts": "^9.0.4",
     "@mui/x-data-grid": "^9.0.2",
     "@mui/x-date-pickers": "^9.0.2",
     "bignumber.js": "^11.0.0",
