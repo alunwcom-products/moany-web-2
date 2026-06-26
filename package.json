@@ -16,7 +16,7 @@
     "@mui/material": "^9.1.1",
     "@mui/x-charts": "^9.5.0",
     "@mui/x-data-grid": "^9.5.0",
-    "@mui/x-date-pickers": "^9.5.0",
+    "@mui/x-date-pickers": "^9.7.0",
     "bignumber.js": "^11.1.4",
     "dayjs": "^1.11.21",
     "lodash": "^4.18.1",
