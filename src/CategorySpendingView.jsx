@@ -1,6 +1,6 @@
 import { Box, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Link as MuiLink } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router';
 import { useAuth } from './hooks/AuthContext.js';
 import { useMessaging } from './hooks/MessagingContext.js';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
