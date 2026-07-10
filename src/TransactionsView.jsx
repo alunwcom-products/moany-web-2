@@ -101,7 +101,6 @@ export default function TransactionView() {
   };
 
   const handleFilterUpdate = (key, value) => {
-    console.log(`filter update: ${key} -> ${value}`);
     const newParams = new URLSearchParams(searchParams);
     // Reset page to 1 whenever a filter is changed
     newParams.set('page', '1');
@@ -182,11 +181,7 @@ export default function TransactionView() {
     const { page, pageSize } = paginationModel;
 
     if (Array.isArray(filters.category)) {
-      console.log('category array');
       const cats = filters.category.map((cat) => `category=${cat}`);
-      console.log(cats.join('&'));
-    } else {
-      console.log('single or no category');
     }
 
     const params = new URLSearchParams({
@@ -203,7 +198,6 @@ export default function TransactionView() {
     }
 
     try {
-      console.log(params.toString());
       const response = await getTransactions(params.toString());
       setRows(response.results || []);
       setRowCount(response.totalCount || 0);
@@ -369,7 +363,8 @@ export default function TransactionView() {
           onChange={(e) => handleFilterUpdate('category', e.target.value)}
           sx={{ minWidth: 300 }}
         >
-          {/* <MenuItem value="">All Categories</MenuItem> */}
+          {/* Use null category for filtering by Uncategorized */}
+          <MenuItem value="null">Uncategorized</MenuItem>
           {categories.map(cat => (
             <MenuItem key={cat.uuid} value={cat.uuid}>{cat.full_name}</MenuItem>
           ))}
@@ -407,7 +402,10 @@ export default function TransactionView() {
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1, mb: 2 }}>
         {filters.category.map((value) => {
-          const category = categories.find((c) => c.uuid === value);
+          let category = categories.find((c) => c.uuid === value);
+          if (value === 'null') {
+            category = { uuid: 'null', full_name: 'Uncategorized' }
+          }
           return (
             <Chip
               key={value}
