@@ -20,7 +20,7 @@
     "bignumber.js": "^11.1.5",
     "dayjs": "^1.11.21",
     "lodash": "^4.18.1",
-    "react": "^19.2.7",
+    "react": "^19.2.8",
     "react-dom": "^19.2.7",
     "react-router": "^8.2.0",
     "uuid": "^14.0.1"
