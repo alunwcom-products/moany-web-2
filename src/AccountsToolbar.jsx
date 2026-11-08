@@ -20,6 +20,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { useAuth } from './hooks/AuthContext';
 import { useMessaging } from './hooks/MessagingContext';
+import { setAccount } from './data/api';
 
 export default function AccountsToolbar({ handleLoading, setAccounts, accounts = [] }) {
 
